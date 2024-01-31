@@ -1,8 +1,7 @@
 import { Route, Routes } from 'react-router';
 
 import AdminLayout from './components/layouts/Admin';
-import { Home } from './pages';
-import Products from './pages/products';
+import { Home, Products } from './pages';
 import APP_ROUTES from './utils/routes';
 
 function App() {

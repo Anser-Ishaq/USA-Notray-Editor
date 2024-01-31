@@ -1,7 +1,6 @@
 import { ColumnType } from 'rc-table';
-import React from 'react';
 
-import AsyncTable from '@/components/ui/asyncTable';
+import AsyncTable from '@/components/ui/AsyncTable';
 import { useProductQuery } from '@/service/product';
 import { Product } from '@/types';
 

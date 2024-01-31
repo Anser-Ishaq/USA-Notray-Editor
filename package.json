@@ -17,6 +17,8 @@
     "commitlint": "commitlint --edit"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "antd": "^5.13.3",
     "axios": "^1.6.5",
     "classnames": "^2.5.1",
     "js-cookie": "^3.0.5",
