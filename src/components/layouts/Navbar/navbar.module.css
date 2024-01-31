@@ -1,0 +1,21 @@
+.logo {
+  float: left;
+  width: 220px;
+  height: 31px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 24px 16px 0;
+}
+
+.user_info {
+  float: right;
+  width: max-content;
+  height: 31px;
+  margin: 16px 24px 16px 0;
+}
+
+.navbar_background {
+  background-color: #fff !important;
+  padding-left: 2rem;
+}

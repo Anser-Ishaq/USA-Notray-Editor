@@ -12,7 +12,10 @@ function withOpacity(variableName) {
 }
 
 export default {
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],  
+  corePlugins: {
+    preflight: false,
+  },
   theme: {
     extend: {
       screens: {

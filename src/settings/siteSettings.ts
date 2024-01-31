@@ -1,3 +1,9 @@
+import {
+  ContainerFilled,
+  DollarCircleFilled,
+  HomeFilled,
+} from '@ant-design/icons';
+
 import APP_ROUTES from '@/utils/routes';
 
 export const siteSettings = {
@@ -9,14 +15,19 @@ export const siteSettings = {
   sidebarLinks: {
     admin: [
       {
-        href: APP_ROUTES.HOME,
+        key: APP_ROUTES.HOME,
         label: 'Home',
-        icon: 'DashboardIcon',
+        icon: HomeFilled,
       },
       {
-        href: APP_ROUTES.PRODUCTS,
+        key: APP_ROUTES.PRODUCTS,
         label: 'Products',
-        icon: 'DashboardIcon',
+        icon: ContainerFilled,
+      },
+      {
+        key: APP_ROUTES.ORDERS,
+        label: 'Orders',
+        icon: DollarCircleFilled,
       },
     ],
   },

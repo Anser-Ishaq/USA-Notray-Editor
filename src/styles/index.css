@@ -306,6 +306,59 @@
   }
 
   body {
-    @apply font-body;
+    @apply font-sans m-0 p-0;
+  }
+
+  html,
+  :host {
+    line-height: 1.5; /* 1 */
+    -webkit-text-size-adjust: 100%; /* 2 */
+    -moz-tab-size: 4; /* 3 */
+    tab-size: 4; /* 3 */
+    font-family: theme(
+      'fontFamily.sans',
+      ui-sans-serif,
+      system-ui,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+      'Noto Color Emoji'
+    ); /* 4 */
+    -webkit-tap-highlight-color: transparent; /* 7 */
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  span,
+  a,
+  blockquote,
+  main,
+  article,
+  content,
+  td,
+  tr,
+  th,
+  ul,
+  ol,
+  li {
+    @apply font-body m-0 p-0;
+  }
+
+  ol,
+  ul,
+  menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  :disabled {
+    cursor: default;
   }
 }

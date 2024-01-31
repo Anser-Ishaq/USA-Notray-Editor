@@ -6,6 +6,7 @@ import { HashRouter } from 'react-router-dom';
 import './styles/index.css';
 
 import App from './App.tsx';
+import ThemeProvider from './settings/ThemeProvider.tsx';
 
 export function WrappedApp() {
   const queryClientRef = useRef<any>(null);
@@ -13,11 +14,13 @@ export function WrappedApp() {
     queryClientRef.current = new QueryClient();
   }
   return (
-    <QueryClientProvider client={queryClientRef.current}>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClientRef.current}>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

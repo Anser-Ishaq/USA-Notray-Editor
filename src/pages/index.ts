@@ -1,4 +1,6 @@
 import Home from './Home';
+import Orders from './Orders';
+import EditOrder from './Orders/EditOrder';
 import Products from './Products';
 
-export { Home, Products };
+export { EditOrder, Home, Orders, Products };

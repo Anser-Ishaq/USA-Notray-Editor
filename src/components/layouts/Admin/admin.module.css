@@ -1,0 +1,5 @@
+.site_container {
+  background: #fff;
+  max-height: 90vh;
+  overflow-y: auto;
+}

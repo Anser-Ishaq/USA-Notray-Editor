@@ -1,25 +1,21 @@
-import { ColumnType } from 'rc-table';
+import { Table, TableColumnType, Typography } from 'antd';
 
-import AsyncTable from '@/components/ui/AsyncTable';
 import { useProductQuery } from '@/service/product';
 import { Product } from '@/types';
 
-const columns: ColumnType<Product>[] = [
+const columns: TableColumnType<Product>[] = [
   {
     title: 'ID',
-    className: 'cursor-pointer',
     dataIndex: 'id',
     key: 'id',
   },
   {
     title: 'Name',
-    className: 'cursor-pointer',
     dataIndex: 'title',
     key: 'title',
   },
   {
     title: 'Price',
-    className: 'cursor-pointer',
     dataIndex: 'price',
     key: 'price',
   },
@@ -29,10 +25,13 @@ const Products = () => {
   const { products, isLoading } = useProductQuery();
   return (
     <>
-      <AsyncTable<Product>
-        isLoading={isLoading}
+      <div className="mb-4">
+        <Typography.Title level={4}>Products</Typography.Title>
+      </div>
+      <Table
+        loading={isLoading}
         columns={columns}
-        data={products}
+        dataSource={products}
         rowKey="id"
       />
     </>
