@@ -1,5 +1,5 @@
 // Dashboard.tsx
-import { Button, Spin } from 'antd';
+import { Button, Select, Spin } from 'antd';
 import React, {
   useCallback,
   useEffect,
@@ -21,6 +21,7 @@ import {
   usePartcipantDocsQuery,
   useUserSessionQuery,
 } from '@/service/notarySession/hooks';
+import { Jobdoc } from '@/service/shared/Response/participantDocs';
 import { PageSyncRecievedEventData } from '@/service/shared/Response/socket';
 import socketService from '@/service/socket/socketService';
 import { OverlayItem } from '@/types/app';
@@ -31,6 +32,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const Dashboard: React.FC = () => {
+  const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
@@ -86,6 +88,16 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const docsOptions = useMemo(
+    () =>
+      participantDocs?.job_docs?.map((jd) => ({
+        ...jd,
+        label: jd.file_name,
+        value: jd.ID,
+      })),
+    [participantDocs?.job_docs],
+  );
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Spin spinning={isLoading || userSessionLoading || docsLoading}>
@@ -97,6 +109,18 @@ const Dashboard: React.FC = () => {
           <div className="bg-gray-50 h-full overflow-y-auto fixed left-0 w-1/4">
             {/* Video call component */}
             <div className="p-2">
+              <Select
+                loading={docsLoading}
+                options={docsOptions}
+                allowClear
+                onChange={(value: number) => {
+                  setSelectedDocument(
+                    participantDocs?.job_docs?.find((jd) => jd.ID === value),
+                  );
+                }}
+                className="w-full mb-4"
+                placeholder="Select Document"
+              />
               <Button
                 color="error"
                 icon={<MdAddCircleOutline />}
@@ -132,7 +156,12 @@ const Dashboard: React.FC = () => {
                 overlays={overlays}
                 updateOverlays={updateOverlays}
               />
-              <PDFViewer pdfUrl="https://getsamplefiles.com/download/pdf/sample-3.pdf" />
+              <PDFViewer
+                pdfUrl={
+                  selectedDocument?.file_path ??
+                  'https://getsamplefiles.com/download/pdf/sample-3.pdf'
+                }
+              />
             </DroppableArea>
           </div>
           <SidePanel

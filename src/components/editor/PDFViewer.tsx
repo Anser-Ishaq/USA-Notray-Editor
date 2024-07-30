@@ -4,7 +4,7 @@ import React, { useCallback, useImperativeHandle, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 
 interface PDFViewerProps {
-  pdfUrl: string;
+  pdfUrl?: string;
 }
 
 const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
