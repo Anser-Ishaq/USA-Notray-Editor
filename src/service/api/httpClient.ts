@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
 const Axios = axios.create({
@@ -7,6 +7,7 @@ const Axios = axios.create({
   timeout: 50000,
   headers: {
     'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
   },
 });
 // Change request data/error
@@ -21,7 +22,7 @@ Axios.interceptors.request.use((config) => {
   // @ts-ignore
   config.headers = {
     ...config.headers,
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
   return config;
 });
@@ -33,8 +34,7 @@ Axios.interceptors.response.use(
     if (
       (error.response && error.response.status === 401) ||
       (error.response && error.response.status === 403) ||
-      (error.response &&
-        error.response.data.message === 'PICKBAZAR_ERROR.NOT_AUTHORIZED')
+      (error.response && error.response.data.message === 'Unauthorized')
     ) {
       Cookies.remove(AUTH_TOKEN_KEY);
     }
@@ -46,23 +46,44 @@ Axios.interceptors.response.use(
 interface SearchParamOptions {}
 
 export class HttpClient {
-  static async get<T>(url: string, params?: unknown) {
-    const response = await Axios.get<T>(url, { params });
+  static async get<T>(
+    url: string,
+    params?: unknown,
+    options?: AxiosRequestConfig<T>,
+  ) {
+    const response = await Axios.get<T>(url, { params, ...options });
     return response.data;
   }
 
-  static async post<T>(url: string, data: unknown, options?: any) {
+  static async post<T>(
+    url: string,
+    data: unknown,
+    options?: AxiosRequestConfig<T>,
+  ) {
     const response = await Axios.post<T>(url, data, options);
     return response.data;
   }
 
-  static async put<T>(url: string, data: unknown) {
-    const response = await Axios.put<T>(url, data);
+  static async put<T>(
+    url: string,
+    data: unknown,
+    options?: AxiosRequestConfig<T>,
+  ) {
+    const response = await Axios.put<T>(url, data, options);
     return response.data;
   }
 
-  static async delete<T>(url: string) {
-    const response = await Axios.delete<T>(url);
+  static async patch<T>(
+    url: string,
+    data: unknown,
+    options?: AxiosRequestConfig<T>,
+  ) {
+    const response = await Axios.patch<T>(url, data, options);
+    return response.data;
+  }
+
+  static async delete<T>(url: string, options?: AxiosRequestConfig<T>) {
+    const response = await Axios.delete<T>(url, options);
     return response.data;
   }
 

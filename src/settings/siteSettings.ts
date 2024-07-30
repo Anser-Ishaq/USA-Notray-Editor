@@ -15,7 +15,7 @@ export const siteSettings = {
   sidebarLinks: {
     admin: [
       {
-        key: APP_ROUTES.HOME,
+        key: APP_ROUTES.DASHBOARD,
         label: 'Home',
         icon: HomeFilled,
       },
