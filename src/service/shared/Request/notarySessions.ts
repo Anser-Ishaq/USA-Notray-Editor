@@ -1,5 +1,9 @@
 import { ISessionStatus } from '@/types/app';
 
+export type UserSessionRequest = {
+  sessionId: number;
+};
+
 export type NotarySessionRequest = {
   sessionId: number;
 };

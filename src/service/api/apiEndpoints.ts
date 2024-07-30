@@ -1,5 +1,6 @@
 export const API_ENDPOINTS = {
   // Auth
+  GET_USER_SESSION: '/session',
   GET_NOTARY_SESSION: '/findNotarySessionLink',
   GET_PARTICIPANT_DOCS: '/job-participants-docs',
   UPDATE_SESSION_STATUS: '/start-end',

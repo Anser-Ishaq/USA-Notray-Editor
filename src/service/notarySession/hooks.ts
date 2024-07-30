@@ -7,7 +7,15 @@ import {
   NotarySessionRequest,
   ParticipantDocsRequest,
   UpdateSessionRequest,
+  UserSessionRequest,
 } from '@/service/shared/Request/notarySessions';
+
+export function useUserSessionQuery(variables: UserSessionRequest) {
+  return useQuery({
+    queryKey: [API_ENDPOINTS.GET_USER_SESSION],
+    queryFn: () => notarySessionClient.getUserSession(variables),
+  });
+}
 
 export function useNotarySessionQuery(variables: NotarySessionRequest) {
   return useQuery({

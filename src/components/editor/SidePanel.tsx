@@ -1,6 +1,7 @@
 // SidePanel.tsx
 import { Button, message } from 'antd';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import React from 'react';
 
 import DraggableElement from '@/components/editor/DraggableElement';
@@ -28,42 +29,58 @@ const SidePanel: React.FC<SidePanelProps> = ({
   const { mutate: completeJobDocument, isPending: savingDocument } =
     useCompleteJobDocumentMutation();
 
+  // async function exportPDF() {
+  //   const input = document.getElementById('pdf-viewer');
+  //   if (!input) return;
+
+  //   try {
+  //     // Capture the content as a canvas
+  //     const canvas = await html2canvas(input, {
+  //       scale: 2,
+  //       useCORS: true,
+  //       logging: true, // Enable logging for debugging
+  //       allowTaint: true, // Allow cross-origin images to taint the canvas
+  //     });
+
+  //     // Convert the canvas to a base64 string
+  //     const base64String = canvas.toDataURL('image/png');
+
+  //     // Log the base64 string to the console
+  //     console.log('Base64 representation of the document:');
+  //     console.log(base64String);
+
+  //     // Optionally, you can still create the PDF object if needed
+  //     // const pdf = new jsPDF({
+  //     //   orientation: 'p',
+  //     //   unit: 'px',
+  //     //   format: [canvas.width, canvas.height],
+  //     // });
+  //     // pdf.addImage(base64String, 'PNG', 0, 0, canvas.width, canvas.height);
+
+  //     // You can return the base64 string if you want to use it elsewhere
+  //     return base64String;
+  //   } catch (error) {
+  //     console.error('Error generating document base64:', error);
+  //   }
+  // }
+
   async function exportPDF() {
     const input = document.getElementById('pdf-viewer');
     if (!input) return;
 
-    try {
-      // Capture the content as a canvas
-      const canvas = await html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        logging: true, // Enable logging for debugging
-        allowTaint: true, // Allow cross-origin images to taint the canvas
-      });
+    const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+    const base64 = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'p',
+      unit: 'px',
+      format: [canvas.width, canvas.height],
+    });
 
-      // Convert the canvas to a base64 string
-      const base64String = canvas.toDataURL('image/png');
-
-      // Log the base64 string to the console
-      console.log('Base64 representation of the document:');
-      console.log(base64String);
-
-      // Optionally, you can still create the PDF object if needed
-      // const pdf = new jsPDF({
-      //   orientation: 'p',
-      //   unit: 'px',
-      //   format: [canvas.width, canvas.height],
-      // });
-      // pdf.addImage(base64String, 'PNG', 0, 0, canvas.width, canvas.height);
-
-      // You can return the base64 string if you want to use it elsewhere
-      return base64String;
-    } catch (error) {
-      console.error('Error generating document base64:', error);
-    }
+    pdf.addImage(base64, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save('document_with_images.pdf');
+    return base64;
   }
 
-  console.log('DATA', data);
   const endSession = () => {
     updateSessionStatus(
       {

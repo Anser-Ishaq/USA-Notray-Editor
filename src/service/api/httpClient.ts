@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
 const Axios = axios.create({
-  baseURL: import.meta.env.VITE_PUBLIC_REST_API_ENDPOINT,
+  baseURL: import.meta.env.VITE_PUBLIC_REST_API_ENDPOINT + '/api',
   timeout: 50000,
   headers: {
     'Content-Type': 'application/json',

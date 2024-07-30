@@ -1,7 +1,15 @@
 // Dashboard.tsx
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Button, Spin } from 'antd';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { MdAddCircleOutline } from 'react-icons/md';
 import { pdfjs } from 'react-pdf';
 
 import DroppableArea from '@/components/editor/DroppableArea';
@@ -11,7 +19,10 @@ import SidePanel from '@/components/editor/SidePanel';
 import {
   useNotarySessionQuery,
   usePartcipantDocsQuery,
+  useUserSessionQuery,
 } from '@/service/notarySession/hooks';
+import { PageSyncRecievedEventData } from '@/service/shared/Response/socket';
+import socketService from '@/service/socket/socketService';
 import { OverlayItem } from '@/types/app';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -23,10 +34,13 @@ const Dashboard: React.FC = () => {
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
+  const editorContainerRef = useRef<any>(null);
 
-  const { data, isLoading } = useNotarySessionQuery({ sessionId: 2793 });
+  const { data: userSession, isLoading: userSessionLoading } =
+    useUserSessionQuery({ sessionId: 246 });
+  const { data, isLoading } = useNotarySessionQuery({ sessionId: 246 });
   const { data: participantDocs, isLoading: docsLoading } =
-    usePartcipantDocsQuery({ sessionId: 2793 });
+    usePartcipantDocsQuery({ sessionId: 246 });
 
   const addOverlay = useCallback((item: OverlayItem) => {
     setOverlays((prevOverlays) => [...prevOverlays, item]);
@@ -44,35 +58,90 @@ const Dashboard: React.FC = () => {
     [participantDocs?.notary],
   );
 
-  const MemoizedPDFViewer = useMemo(() => React.memo(PDFViewer), []);
+  useEffect(() => {
+    if (data && userSession?.[0]?.socket_room_id) {
+      socketService.connect(import.meta.env.VITE_PUBLIC_SOCKET_ENDPOINT);
+      socketService.joinRoom(userSession?.[0]?.socket_room_id);
+
+      socketService.onPageSync((data: PageSyncRecievedEventData) => {
+        if (data?.syncData?.scrollPosition) {
+          editorContainerRef.current.scrollTop = data?.syncData?.scrollPosition;
+        }
+      });
+
+      return () => {
+        socketService.disconnect();
+      };
+    }
+  }, [data, userSession]);
+
+  const onPageSync = () => {
+    if (!userSession?.[0]?.socket_room_id || !pdfRef.current) return;
+    const scrollPosition = editorContainerRef?.current?.scrollTop;
+    socketService.sendPageSync({
+      socketRoomId: userSession?.[0]?.socket_room_id,
+      syncData: {
+        scrollPosition,
+      },
+    });
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="grid grid-cols-12 min-h-screen w-full">
-        <div className="bg-gray-50 h-full col-span-3">
-          {/* Video call component */}
-        </div>
+      <Spin spinning={isLoading || userSessionLoading || docsLoading}>
         <div
-          ref={pdfRef}
-          id="pdf-viewer"
-          className="h-full col-span-6 relative"
+          ref={editorContainerRef}
+          className="grid grid-cols-12 h-screen overflow-y-auto w-full"
         >
-          <DroppableArea
-            addOverlay={addOverlay}
-            updateOverlays={updateOverlays}
-            pdfRef={pdfRef}
-            overlays={overlays}
+          <div className="col-span-3" />
+          <div className="bg-gray-50 h-full overflow-y-auto fixed left-0 w-1/4">
+            {/* Video call component */}
+            <div className="p-2">
+              <Button
+                color="error"
+                icon={<MdAddCircleOutline />}
+                type="primary"
+                block
+                className="mb-2 flex-1"
+              >
+                Add Page
+              </Button>
+              <Button
+                color="error"
+                type="primary"
+                block
+                className="mb-2 flex-1"
+                onClick={onPageSync}
+              >
+                Sync Pages
+              </Button>
+            </div>
+          </div>
+          <div
+            ref={pdfRef}
+            id="pdf-viewer"
+            className="h-full col-span-6 relative"
           >
-            <OverlayLayer overlays={overlays} updateOverlays={updateOverlays} />
-            <MemoizedPDFViewer pdfUrl="https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/10/dummy.pdf" />
-          </DroppableArea>
+            <DroppableArea
+              addOverlay={addOverlay}
+              updateOverlays={updateOverlays}
+              pdfRef={pdfRef}
+              overlays={overlays}
+            >
+              <OverlayLayer
+                overlays={overlays}
+                updateOverlays={updateOverlays}
+              />
+              <PDFViewer pdfUrl="https://getsamplefiles.com/download/pdf/sample-3.pdf" />
+            </DroppableArea>
+          </div>
+          <SidePanel
+            data={data}
+            documentsData={participantDocs}
+            notary={notary}
+          />
         </div>
-        <SidePanel
-          data={data}
-          documentsData={participantDocs}
-          notary={notary}
-        />
-      </div>
+      </Spin>
     </DndProvider>
   );
 };
