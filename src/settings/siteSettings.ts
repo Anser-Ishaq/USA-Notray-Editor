@@ -1,8 +1,4 @@
-import {
-  ContainerFilled,
-  DollarCircleFilled,
-  HomeFilled,
-} from '@ant-design/icons';
+import { HomeFilled } from '@ant-design/icons';
 
 import APP_ROUTES from '@/utils/routes';
 
@@ -18,16 +14,6 @@ export const siteSettings = {
         key: APP_ROUTES.DASHBOARD,
         label: 'Home',
         icon: HomeFilled,
-      },
-      {
-        key: APP_ROUTES.PRODUCTS,
-        label: 'Products',
-        icon: ContainerFilled,
-      },
-      {
-        key: APP_ROUTES.ORDERS,
-        label: 'Orders',
-        icon: DollarCircleFilled,
       },
     ],
   },

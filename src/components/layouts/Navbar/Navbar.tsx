@@ -1,20 +1,14 @@
-import { UserOutlined } from '@ant-design/icons';
-import { Button, Layout, Menu, Typography } from 'antd';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Layout, Typography } from 'antd';
 
 import { siteSettings } from '@/settings/siteSettings';
-import APP_ROUTES from '@/utils/routes';
 
 const { Header: AntHeader } = Layout;
 
 function NavBar() {
-  const navigate = useNavigate();
-
   return (
     <AntHeader>
       <Typography.Title level={3}>{siteSettings.name}</Typography.Title>
-      <Menu
+      {/* <Menu
         theme="dark"
         selectable={false}
         mode="horizontal"
@@ -37,16 +31,9 @@ function NavBar() {
           ...route,
           onClick: () => navigate(route.key),
         }))}
-      />
+      /> */}
     </AntHeader>
   );
 }
 
 export default NavBar;
-
-const dropDownRoutes = [
-  {
-    label: 'Logout',
-    key: APP_ROUTES.LOGOUT,
-  },
-];
