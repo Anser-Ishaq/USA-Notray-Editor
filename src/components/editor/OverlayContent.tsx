@@ -17,7 +17,12 @@ const OverlayContent = ({
   const content = useMemo(() => {
     switch (overlay.type) {
       case ItemType.INPUT:
-        return <input id={overlay.id} className="w-full h-full" />;
+        return (
+          <input
+            id={overlay.id}
+            className="py-2 w-full border-none outline-gray-100 border-gray-50"
+          />
+        );
       case ItemType.TEXT:
         return (
           <p

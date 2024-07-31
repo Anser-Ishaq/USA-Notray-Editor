@@ -11,6 +11,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MdAddCircleOutline } from 'react-icons/md';
 import { pdfjs } from 'react-pdf';
+import { useParams } from 'react-router-dom';
 
 import DroppableArea from '@/components/editor/DroppableArea';
 import OverlayLayer from '@/components/editor/OverlayLayer';
@@ -32,6 +33,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const Dashboard: React.FC = () => {
+  const { id } = useParams();
+
+  const sessionId = +(id ?? 246);
+
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
 
@@ -39,10 +44,10 @@ const Dashboard: React.FC = () => {
   const editorContainerRef = useRef<any>(null);
 
   const { data: userSession, isLoading: userSessionLoading } =
-    useUserSessionQuery({ sessionId: 246 });
-  const { data, isLoading } = useNotarySessionQuery({ sessionId: 246 });
+    useUserSessionQuery({ sessionId });
+  const { data, isLoading } = useNotarySessionQuery({ sessionId });
   const { data: participantDocs, isLoading: docsLoading } =
-    usePartcipantDocsQuery({ sessionId: 246 });
+    usePartcipantDocsQuery({ sessionId });
 
   const addOverlay = useCallback((item: OverlayItem) => {
     setOverlays((prevOverlays) => [...prevOverlays, item]);
