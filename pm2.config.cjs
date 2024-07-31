@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'your-app-name',
+      name: 'notary-frontend-react',
       script: 'serve',
       env: {
         PM2_SERVE_PATH: './build',
