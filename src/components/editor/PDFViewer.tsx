@@ -49,17 +49,19 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
       for (let pageNumber = 1; pageNumber <= totalNumPages; pageNumber++) {
         if (pageNumber <= numPages!) {
           pages.push(
-            <Page
-              className="border-solid border-gray-200 p-2 my-2"
-              key={pageNumber}
-              pageNumber={pageNumber}
-            />,
+            <div className="w-full flex justify-center my-2" key={pageNumber}>
+              <Page
+                className="pdf-page border-solid border-gray-300 p-2"
+                pageNumber={pageNumber}
+              />
+            </div>,
           );
         } else {
           pages.push(
             <div
               key={`extra-page-${pageNumber}`}
-              className="h-screen border-solid border-gray-200"
+              className="h-screen border-solid border-gray-300 flex items-center justify-center my-2"
+              style={{ pageBreakAfter: 'always' }}
             >
               <span className="text-xs bg-white p-2 text-gray-200">
                 Blank Page {pageNumber}
@@ -73,7 +75,10 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
     };
 
     return (
-      <div ref={ref} className="w-full">
+      <div
+        ref={ref}
+        className="w-full pdf-container flex flex-col items-center"
+      >
         <Document
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
