@@ -10,6 +10,7 @@ interface DraggableElementProps {
   initialSize?: { width: number; height: number };
   imgSrc?: string;
   initialPosition?: { x: number; y: number };
+  jobDocId?: number;
 }
 
 const DraggableElement: React.FC<DraggableElementProps> = ({
@@ -19,6 +20,7 @@ const DraggableElement: React.FC<DraggableElementProps> = ({
   overlayText,
   initialSize,
   imgSrc,
+  jobDocId,
 }) => {
   const item: OverlayItem = {
     type,
@@ -28,6 +30,7 @@ const DraggableElement: React.FC<DraggableElementProps> = ({
     position: initialPosition ?? { x: 0, y: 0 },
     width: initialSize?.width ?? 100,
     height: initialSize?.height ?? 100,
+    jobDocId,
   };
   const [, drag] = useDrag({
     type,

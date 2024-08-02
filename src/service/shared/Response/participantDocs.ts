@@ -70,7 +70,7 @@ export interface Jobdoc {
   created_at: string;
   updated_at: null;
   deleted_at: null;
-  complete_url: null;
+  complete_url: string | null;
   doc_name: string;
   doc_url: null;
   Document: null;

@@ -11,19 +11,28 @@ import {
   useUpdateSessionMutation,
 } from '@/service/notarySession/hooks';
 import { NotarySessionResponse } from '@/service/shared/Response/notarySession';
-import { ParticipantDocsResponse } from '@/service/shared/Response/participantDocs';
-import { ISessionStatus, ItemType } from '@/types/app';
+import {
+  Jobdoc,
+  ParticipantDocsResponse,
+} from '@/service/shared/Response/participantDocs';
+import { ISessionStatus, ItemType, OverlayItem } from '@/types/app';
 
 interface SidePanelProps {
   data: NotarySessionResponse | undefined;
   notary: ParticipantDocsResponse['notary'][0] | undefined;
   documentsData: ParticipantDocsResponse | undefined;
+  overlays?: OverlayItem[];
+  sessionId?: number;
+  selectedDocument?: Jobdoc;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({
   data,
   notary,
   documentsData,
+  overlays,
+  sessionId,
+  selectedDocument,
 }) => {
   const { mutate: updateSessionStatus, isPending } = useUpdateSessionMutation();
   const { mutate: completeJobDocument, isPending: savingDocument } =
@@ -81,12 +90,19 @@ const SidePanel: React.FC<SidePanelProps> = ({
     return base64;
   }
 
+  // This is required because JSON.stringify cannot parse circular JSON
+  const sanitizedOverlays = overlays?.map((ov) => {
+    const { children: _, ...sanitizedOverlay } = ov;
+    return sanitizedOverlay;
+  });
+
   const endSession = () => {
     updateSessionStatus(
       {
-        sessionId: 2793,
+        sessionId: sessionId ?? 246,
         jobId: data?.session?.[0]?.job_id ?? 0,
         status: ISessionStatus.END_NOTARIZATION,
+        metadata: JSON.stringify(sanitizedOverlays),
       },
       {
         onSuccess: () => {
@@ -98,11 +114,19 @@ const SidePanel: React.FC<SidePanelProps> = ({
 
   const completeNotarization = async () => {
     const base64Doc = await exportPDF();
+
+    // This is required because JSON.stringify cannot parse circular JSON
+    const sanitizedOverlays = overlays?.map((ov) => {
+      const { children: _, ...sanitizedOverlay } = ov;
+      return sanitizedOverlay;
+    });
+
     updateSessionStatus(
       {
-        sessionId: 2793,
+        sessionId: sessionId ?? 246,
         jobId: data?.session?.[0]?.job_id ?? 0,
         status: ISessionStatus.NOTARIZATION_COMPLETED,
+        metadata: JSON.stringify(sanitizedOverlays),
       },
       {
         onSuccess: () => {
@@ -117,6 +141,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
       },
     );
   };
+
   return (
     <div className="bg-gray-50 h-full overflow-y-auto fixed right-0 w-1/4 col-span-3">
       <div className="p-4">
@@ -155,12 +180,16 @@ const SidePanel: React.FC<SidePanelProps> = ({
             <div key={jp.ID} className="flex flex-col mb-4">
               <h3 className="text-xl mb-4">{jp.fullname}</h3>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                <DraggableElement type={ItemType.INPUT}>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.INPUT}
+                >
                   <Button type="default" block className="mb-2">
                     Text
                   </Button>
                 </DraggableElement>
                 <DraggableElement
+                  jobDocId={selectedDocument?.ID}
                   type={ItemType.TEXT}
                   overlayText={jp.fullname}
                 >
@@ -169,6 +198,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
                   </Button>
                 </DraggableElement>
                 <DraggableElement
+                  jobDocId={selectedDocument?.ID}
                   type={ItemType.IMAGE}
                   imgSrc={jp.signature_filename}
                 >
@@ -177,6 +207,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
                   </Button>
                 </DraggableElement>
                 <DraggableElement
+                  jobDocId={selectedDocument?.ID}
                   type={ItemType.TEXT}
                   overlayText={DataHelper.getInitials(jp.fullname)}
                 >
@@ -191,12 +222,16 @@ const SidePanel: React.FC<SidePanelProps> = ({
         {notary ? (
           <>
             <h3 className="mb-4 mt-4">Notary</h3>
-            <DraggableElement type={ItemType.INPUT}>
+            <DraggableElement
+              jobDocId={selectedDocument?.ID}
+              type={ItemType.INPUT}
+            >
               <Button type="default" block className="justify-start mb-2">
                 Text
               </Button>
             </DraggableElement>
             <DraggableElement
+              jobDocId={selectedDocument?.ID}
               type={ItemType.TEXT}
               overlayText={notary?.fullname}
             >
@@ -204,12 +239,17 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 Name
               </Button>
             </DraggableElement>
-            <DraggableElement type={ItemType.TEXT} overlayText={notary?.title}>
+            <DraggableElement
+              jobDocId={selectedDocument?.ID}
+              type={ItemType.TEXT}
+              overlayText={notary?.title}
+            >
               <Button type="default" block className="justify-start mb-2">
                 Title
               </Button>
             </DraggableElement>
             <DraggableElement
+              jobDocId={selectedDocument?.ID}
               type={ItemType.TEXT}
               overlayText={notary?.commission_id}
             >
@@ -218,6 +258,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
               </Button>
             </DraggableElement>
             <DraggableElement
+              jobDocId={selectedDocument?.ID}
               type={ItemType.TEXT}
               overlayText={notary?.eo_expdate}
             >
@@ -225,12 +266,17 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 Commission Exp Date
               </Button>
             </DraggableElement>
-            <DraggableElement type={ItemType.IMAGE} imgSrc={notary?.seal}>
+            <DraggableElement
+              jobDocId={selectedDocument?.ID}
+              type={ItemType.IMAGE}
+              imgSrc={notary?.seal}
+            >
               <Button type="default" block className="justify-start mb-2">
                 Seal
               </Button>
             </DraggableElement>
             <DraggableElement
+              jobDocId={selectedDocument?.ID}
               type={ItemType.TEXT}
               overlayText={notary?.disclosure}
             >

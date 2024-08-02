@@ -16,6 +16,7 @@ export type UpdateSessionRequest = {
   sessionId: number;
   status: ISessionStatus;
   jobId: number;
+  metadata?: string;
 };
 
 export type CompleteJobDocumentRequest = {

@@ -22,6 +22,7 @@ export interface OverlayItem {
   type: ItemTypeValues;
   children: ReactNode;
   src?: string;
+  jobDocId?: number;
   text?: string;
   overlayText?: string;
   id?: string;
