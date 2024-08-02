@@ -141,30 +141,30 @@ const SidePanel: React.FC<SidePanelProps> = ({
     const base64Doc = await exportPDF();
 
     // // This is required because JSON.stringify cannot parse circular JSON
-    // const sanitizedOverlays = overlays?.map((ov) => {
-    //   const { children: _, ...sanitizedOverlay } = ov;
-    //   return sanitizedOverlay;
-    // });
+    const sanitizedOverlays = overlays?.map((ov) => {
+      const { children: _, ...sanitizedOverlay } = ov;
+      return sanitizedOverlay;
+    });
 
-    // updateSessionStatus(
-    //   {
-    //     sessionId: sessionId ?? 246,
-    //     jobId: data?.session?.[0]?.job_id ?? 0,
-    //     status: ISessionStatus.NOTARIZATION_COMPLETED,
-    //     metadata: JSON.stringify(sanitizedOverlays),
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       completeJobDocument({
-    //         job_id: data?.session?.[0]?.job_id ?? 0,
-    //         job_doc_id: documentsData?.job_docs?.[0]?.ID ?? 0,
-    //         status: 'COMPLETED',
-    //         doc_base64: base64Doc ?? '',
-    //         docId: documentsData?.job_docs?.[0]?.ID ?? 0,
-    //       });
-    //     },
-    //   },
-    // );
+    updateSessionStatus(
+      {
+        sessionId: sessionId ?? 246,
+        jobId: data?.session?.[0]?.job_id ?? 0,
+        status: ISessionStatus.NOTARIZATION_COMPLETED,
+        metadata: JSON.stringify(sanitizedOverlays),
+      },
+      {
+        onSuccess: () => {
+          completeJobDocument({
+            job_id: data?.session?.[0]?.job_id ?? 0,
+            job_doc_id: documentsData?.job_docs?.[0]?.ID ?? 0,
+            status: 'COMPLETED',
+            doc_base64: base64Doc ?? '',
+            docId: documentsData?.job_docs?.[0]?.ID ?? 0,
+          });
+        },
+      },
+    );
   };
 
   return (
