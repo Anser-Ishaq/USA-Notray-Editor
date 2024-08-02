@@ -33,6 +33,11 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
       getCurrentPage: () => currentPage,
     }));
 
+    const onLoadError = (error: Error) => {
+      // eslint-disable-next-line no-console
+      console.error('ERROR LOADING THE PDF DOC: ', error);
+    };
+
     return (
       <div ref={ref} className="w-full">
         <Document
@@ -43,6 +48,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
               <Spin spinning />
             </div>
           }
+          onLoadError={onLoadError}
           className="self-center"
         >
           {numPages &&
