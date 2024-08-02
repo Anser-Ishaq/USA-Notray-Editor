@@ -37,7 +37,8 @@ const job_docs: Jobdoc[] = [
     company_id: null,
     job_id: '244',
     file_name: 'michael poitevint.pdf',
-    file_path: 'https://getsamplefiles.com/download/pdf/sample-1.pdf',
+    file_path:
+      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
     white_pages: 0,
     status: 'COMPLETED',
     date_created: '2024-02-01T16:47:12.000Z',
@@ -46,7 +47,8 @@ const job_docs: Jobdoc[] = [
     created_at: '2024-02-01T16:47:12.000Z',
     updated_at: null,
     deleted_at: null,
-    complete_url: 'https://getsamplefiles.com/download/pdf/sample-1.pdf',
+    complete_url:
+      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
     doc_name: 'michael poitevint.pdf',
     doc_url: null,
     Document: null,
@@ -231,7 +233,7 @@ const Dashboard: React.FC = () => {
               <PDFViewer
                 pdfUrl={
                   selectedDocument?.file_path ??
-                  'https://getsamplefiles.com/download/pdf/sample-3.pdf'
+                  'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf'
                 }
               />
             </DroppableArea>
