@@ -133,7 +133,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
           completeJobDocument({
             job_id: data?.session?.[0]?.job_id ?? 0,
             job_doc_id: documentsData?.job_docs?.[0]?.ID ?? 0,
-            status: ISessionStatus.NOTARIZATION_COMPLETED,
+            status: 'COMPLETED',
             doc_base64: base64Doc ?? '',
             docId: documentsData?.job_docs?.[0]?.ID ?? 0,
           });

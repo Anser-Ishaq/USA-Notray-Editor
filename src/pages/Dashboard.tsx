@@ -102,6 +102,7 @@ const Dashboard: React.FC = () => {
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
+  const pdfDocumentRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<any>(null);
 
   const { data: userSession, isLoading: userSessionLoading } =
@@ -133,6 +134,10 @@ const Dashboard: React.FC = () => {
           editorContainerRef.current.scrollTop = data?.syncData?.scrollPosition;
         }
       });
+
+      socketService.onAddNewPage(
+        (pdfDocumentRef as any)?.current?.addBlankPage,
+      );
 
       return () => {
         socketService.disconnect();
@@ -202,6 +207,15 @@ const Dashboard: React.FC = () => {
                 type="primary"
                 block
                 className="mb-2 flex-1"
+                onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
+              >
+                Add Page
+              </Button>
+              <Button
+                color="error"
+                type="primary"
+                block
+                className="mb-2 flex-1"
                 onClick={onPageSync}
               >
                 Sync Pages
@@ -231,6 +245,7 @@ const Dashboard: React.FC = () => {
                 updateOverlays={updateOverlays}
               />
               <PDFViewer
+                ref={pdfDocumentRef}
                 pdfUrl={
                   selectedDocument?.file_path ??
                   'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf'

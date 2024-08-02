@@ -23,6 +23,6 @@ export type CompleteJobDocumentRequest = {
   doc_base64: string;
   job_id: number;
   job_doc_id: number;
-  status: ISessionStatus.NOTARIZATION_COMPLETED;
+  status: string;
   docId: number;
 };
