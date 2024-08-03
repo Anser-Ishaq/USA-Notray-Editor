@@ -12,18 +12,18 @@ interface PDFViewerProps {
   addOverlay: (item: OverlayItem) => void;
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
   selectedDocument?: Jobdoc;
-  pdfRef: React.RefObject<HTMLDivElement>;
   overlays: OverlayItem[];
 }
 
 const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
   (
-    { pdfUrl, addOverlay, updateOverlays, selectedDocument, overlays, pdfRef },
+    { pdfUrl, addOverlay, updateOverlays, selectedDocument, overlays },
     ref: React.ForwardedRef<any>,
   ) => {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [extraPages, setExtraPages] = useState<number[]>([]);
+    const [zoom, setZoom] = useState(1.3); // Zoom state
 
     const onDocumentLoadSuccess = useCallback(
       ({ numPages }: { numPages: number }) => {
@@ -48,6 +48,8 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
       addBlankPage: () => {
         setExtraPages((prev) => [...prev, (numPages || 1) + prev.length + 1]);
       },
+      zoomIn: () => setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2)), // Max zoom 2x
+      zoomOut: () => setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0.5)), // Min zoom 0.5x
     }));
 
     const onLoadError = (error: Error) => {
@@ -71,7 +73,6 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
               key={pageNumber}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
-              pdfRef={pdfRef}
               overlays={overlays}
               pageNumber={pageNumber}
             >
@@ -86,6 +87,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
                 renderAnnotationLayer={false}
                 className="border-solid border-gray-300 p-2"
                 pageNumber={pageNumber}
+                scale={zoom}
               />
             </DroppableArea>,
           );
@@ -96,7 +98,6 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
               key={pageNumber}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
-              pdfRef={pdfRef}
               overlays={overlays}
               pageNumber={pageNumber}
             >
@@ -119,21 +120,27 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
     return (
       <div
         ref={ref}
-        className="w-full pdf-container flex flex-col items-center"
+        className="w-full pdf-container flex flex-col items-center  overflow-x-auto"
       >
-        <Document
-          file={pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          loading={
-            <div className="w-full h-full flex justify-center items-center">
-              <Spin spinning />
-            </div>
-          }
-          onLoadError={onLoadError}
-          className="self-center"
-        >
-          {renderPages()}
-        </Document>
+        {pdfUrl ? (
+          <Document
+            file={pdfUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={
+              <div className="w-full h-full flex justify-center items-center">
+                <Spin spinning />
+              </div>
+            }
+            onLoadError={onLoadError}
+            className="self-center"
+          >
+            {renderPages()}
+          </Document>
+        ) : (
+          <div className="flex justify-center items-center h-screen">
+            No document selected
+          </div>
+        )}
       </div>
     );
   },

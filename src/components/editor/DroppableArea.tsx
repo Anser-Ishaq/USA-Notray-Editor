@@ -8,18 +8,17 @@ interface DroppableAreaProps {
   children: React.ReactNode;
   addOverlay: (item: OverlayItem) => void;
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
-  pdfRef: React.RefObject<HTMLDivElement>;
   overlays: OverlayItem[];
   pageNumber: number;
 }
 
 const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
-  ({ children, addOverlay, updateOverlays, pdfRef, overlays, pageNumber }) => {
+  ({ children, addOverlay, updateOverlays, overlays, pageNumber }) => {
     const [, drop] = useDrop({
       accept: [ItemType.TEXT, ItemType.IMAGE, ItemType.INPUT],
       canDrop: (_item: OverlayItem, monitor) => {
         const offset = monitor.getClientOffset();
-        const dropperDimensions = pdfRef.current
+        const dropperDimensions = document
           ?.querySelector(`.pdf-page[data-page-number='${pageNumber}']`)
           ?.getBoundingClientRect();
 
@@ -33,7 +32,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
       },
       drop: (item: OverlayItem, monitor) => {
         const offset = monitor.getClientOffset();
-        const dropperDimensions = pdfRef.current
+        const dropperDimensions = document
           ?.querySelector(`.pdf-page[data-page-number='${pageNumber}']`)
           ?.getBoundingClientRect();
 

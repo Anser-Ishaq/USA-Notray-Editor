@@ -29,68 +29,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-const job_docs: Jobdoc[] = [
-  {
-    ID: 234,
-    company_id: null,
-    job_id: '244',
-    file_name: 'michael poitevint.pdf',
-    file_path:
-      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
-    white_pages: 0,
-    status: 'COMPLETED',
-    date_created: '2024-02-01T16:47:12.000Z',
-    date_deleted: null,
-    document_id: null,
-    created_at: '2024-02-01T16:47:12.000Z',
-    updated_at: null,
-    deleted_at: null,
-    complete_url:
-      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
-    doc_name: 'michael poitevint.pdf',
-    doc_url: null,
-    Document: null,
-  },
-  {
-    ID: 235,
-    company_id: null,
-    job_id: '244',
-    file_name: 'Test Document 2.pdf',
-    file_path: 'https://getsamplefiles.com/download/pdf/sample-4.pdf',
-    white_pages: 0,
-    status: 'COMPLETED',
-    date_created: '2024-02-01T16:47:12.000Z',
-    date_deleted: null,
-    document_id: null,
-    created_at: '2024-02-01T16:47:12.000Z',
-    updated_at: null,
-    deleted_at: null,
-    complete_url: 'https://getsamplefiles.com/download/pdf/sample-4.pdf',
-    doc_name: 'Test Document 2.pdf',
-    doc_url: null,
-    Document: null,
-  },
-  {
-    ID: 236,
-    company_id: null,
-    job_id: '244',
-    file_name: 'Test Document 3.pdf',
-    file_path: 'https://getsamplefiles.com/download/pdf/sample-2.pdf',
-    white_pages: 0,
-    status: 'COMPLETED',
-    date_created: '2024-02-01T16:47:12.000Z',
-    date_deleted: null,
-    document_id: null,
-    created_at: '2024-02-01T16:47:12.000Z',
-    updated_at: null,
-    deleted_at: null,
-    complete_url: 'https://getsamplefiles.com/download/pdf/sample-2.pdf',
-    doc_name: 'Test Document 3.pdf',
-    doc_url: null,
-    Document: null,
-  },
-];
-
 const Dashboard: React.FC = () => {
   const { id } = useParams();
 
@@ -99,7 +37,6 @@ const Dashboard: React.FC = () => {
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
 
-  const pdfRef = useRef<HTMLDivElement>(null);
   const pdfDocumentRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<any>(null);
 
@@ -144,7 +81,7 @@ const Dashboard: React.FC = () => {
   }, [sessionData, userSession]);
 
   const onPageSync = () => {
-    if (!userSession?.[0]?.socket_room_id || !pdfRef.current) return;
+    if (!userSession?.[0]?.socket_room_id) return;
     const scrollPosition = editorContainerRef?.current?.scrollTop;
     socketService.sendPageSync({
       socketRoomId: userSession?.[0]?.socket_room_id,
@@ -156,12 +93,12 @@ const Dashboard: React.FC = () => {
 
   const docsOptions = useMemo(
     () =>
-      job_docs?.map((jd) => ({
+      participantDocs?.job_docs?.map((jd) => ({
         ...jd,
         label: jd.file_name,
         value: jd.ID,
       })),
-    [],
+    [participantDocs?.job_docs],
   );
 
   useEffect(() => {
@@ -175,6 +112,26 @@ const Dashboard: React.FC = () => {
     }
   }, [sessionData, userSession]);
 
+  const zoomIn = () => {
+    if (pdfDocumentRef.current) {
+      const pdfViewer = pdfDocumentRef.current as any; // Type assertion for ref
+      pdfViewer.zoomIn();
+    }
+  };
+
+  const zoomOut = () => {
+    if (pdfDocumentRef.current) {
+      const pdfViewer = pdfDocumentRef.current as any; // Type assertion for ref
+      pdfViewer.zoomOut();
+    }
+  };
+
+  useEffect(() => {
+    if (participantDocs?.job_docs && participantDocs?.job_docs?.length > 0) {
+      setSelectedDocument(participantDocs.job_docs[0]);
+    }
+  }, [participantDocs?.job_docs]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Spin spinning={isLoading || userSessionLoading || docsLoading}>
@@ -182,15 +139,18 @@ const Dashboard: React.FC = () => {
           ref={editorContainerRef}
           className="grid grid-cols-12 h-screen overflow-y-auto w-full"
         >
-          <div className="col-span-3" />
-          <div className="bg-gray-50 h-full overflow-y-auto fixed left-0 w-1/4">
+          <div className="col-span-2" />
+          <div className="bg-gray-50 h-full overflow-y-auto fixed left-0 w-1/5">
             <div className="p-2">
               <Select
                 loading={docsLoading}
                 options={docsOptions}
+                value={selectedDocument?.ID}
                 allowClear
                 onChange={(value: number) => {
-                  setSelectedDocument(job_docs?.find((jd) => jd.ID === value));
+                  setSelectedDocument(
+                    participantDocs?.job_docs?.find((jd) => jd.ID === value),
+                  );
                 }}
                 className="w-full mb-4"
                 placeholder="Select Document"
@@ -215,7 +175,7 @@ const Dashboard: React.FC = () => {
               </Button>
             </div>
             <div className="mx-2">
-              {import.meta.env.PROD ? (
+              {import.meta.env.DEV ? (
                 <iframe
                   src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
                   allow="camera; microphone; fullscreen; speaker; display-capture"
@@ -224,21 +184,20 @@ const Dashboard: React.FC = () => {
               ) : null}
             </div>
           </div>
-          <div ref={pdfRef} id="pdf-viewer" className="h-full col-span-6">
+          <div id="pdf-viewer" className="h-full col-span-8">
             <PDFViewer
               ref={pdfDocumentRef}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
               selectedDocument={selectedDocument}
-              pdfRef={pdfRef}
               overlays={overlays}
-              pdfUrl={
-                selectedDocument?.file_path ??
-                'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf'
-              }
+              pdfUrl={selectedDocument?.file_path}
             />
           </div>
+          <div className="col-span-2" />
           <SidePanel
+            zoomIn={zoomIn}
+            zoomOut={zoomOut}
             data={sessionData}
             userSession={userSession}
             documentsData={participantDocs}

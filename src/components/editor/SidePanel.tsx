@@ -1,4 +1,5 @@
 // SidePanel.tsx
+import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -29,6 +30,8 @@ interface SidePanelProps {
   overlays?: OverlayItem[];
   sessionId?: number;
   selectedDocument?: Jobdoc;
+  zoomIn: () => void;
+  zoomOut: () => void;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({
@@ -39,49 +42,14 @@ const SidePanel: React.FC<SidePanelProps> = ({
   overlays,
   sessionId,
   selectedDocument,
+  zoomIn,
+  zoomOut,
 }) => {
   const dispatch = useDispatch();
 
   const { mutate: updateSessionStatus, isPending } = useUpdateSessionMutation();
   const { mutate: completeJobDocument, isPending: savingDocument } =
     useCompleteJobDocumentMutation();
-
-  // async function exportPDF() {
-  //   const input = document.getElementById('pdf-viewer');
-  //   if (!input) return;
-
-  //   const canvas = await html2canvas(input, { scale: 2, useCORS: true });
-  //   const base64 = canvas.toDataURL('application/pdf');
-  //   const pdf = new jsPDF({
-  //     orientation: 'p',
-  //     unit: 'px',
-  //     format: [canvas.width, canvas.height],
-  //   });
-
-  //   console.log('PDF', base64);
-  //   pdf.addImage(base64, 'PNG', 0, 0, canvas.width, canvas.height);
-  //   console.log('PDF 2', pdf);
-  //   pdf.save('document_with_images.pdf');
-  //   console.log('PDF 3', pdf);
-  //   return base64;
-  // }
-
-  // async function exportPDF() {
-  //   const input = document.getElementById('pdf-viewer');
-  //   if (!input) return;
-
-  //   const canvas = await html2canvas(input, { scale: 2, useCORS: true });
-  //   const base64 = canvas.toDataURL('image/png');
-  //   const pdf = new jsPDF({
-  //     orientation: 'p',
-  //     unit: 'px',
-  //     format: [canvas.width, canvas.height],
-  //   });
-
-  //   pdf.addImage(base64, 'PNG', 0, 0, canvas.width, canvas.height);
-  //   pdf.save('test.pdf');
-  //   return base64;
-  // }
 
   async function exportPDF() {
     const input = document.getElementById('pdf-viewer');
@@ -211,9 +179,28 @@ const SidePanel: React.FC<SidePanelProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 h-full overflow-y-auto fixed right-0 w-1/4 col-span-3">
-      <div className="p-4">
+    <div className="bg-gray-50 h-full overflow-y-auto fixed right-0 w-1/5 col-span-3">
+      <div className="p-2">
         <h3 className="text-xl mb-4">PDF</h3>
+        <div className="flex items-center gap-4 mb-2">
+          <Button
+            color="error"
+            type="primary"
+            block
+            className="mb-2 flex-1"
+            onClick={zoomIn}
+            icon={<ZoomInOutlined />}
+            disabled={!selectedDocument}
+          />
+          <Button
+            type="primary"
+            block
+            className="mb-2 flex-1"
+            onClick={zoomOut}
+            icon={<ZoomOutOutlined />}
+            disabled={!selectedDocument}
+          />
+        </div>
         <div className="flex items-center gap-4 mb-2">
           <Button
             loading={isPending}
@@ -237,14 +224,6 @@ const SidePanel: React.FC<SidePanelProps> = ({
             Complete
           </Button>
         </div>
-        <Button
-          type="default"
-          block
-          className="flex-1 mb-4"
-          onClick={exportPDF}
-        >
-          Export
-        </Button>
         {data?.job_participant?.map(
           (jp: NotarySessionResponse['job_participant'][0]) => (
             <div key={jp.ID} className="flex flex-col mb-4">
