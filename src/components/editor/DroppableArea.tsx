@@ -1,4 +1,3 @@
-// DroppableArea.tsx
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import * as uuid from 'uuid';
@@ -20,21 +19,23 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
       accept: [ItemType.TEXT, ItemType.IMAGE, ItemType.INPUT],
       canDrop: (_item: OverlayItem, monitor) => {
         const offset = monitor.getClientOffset();
-        const dropperDimensions = pdfRef.current?.getBoundingClientRect();
+        const dropperDimensions = pdfRef.current
+          ?.querySelector(`.pdf-page[data-page-number='${pageNumber}']`)
+          ?.getBoundingClientRect();
 
         return (
           (dropperDimensions &&
             offset &&
             dropperDimensions.left < offset?.x &&
-            dropperDimensions.right > offset?.x &&
-            dropperDimensions.top < offset?.y &&
-            dropperDimensions.bottom > offset?.y) ??
+            dropperDimensions.right > offset?.x) ??
           false
         );
       },
       drop: (item: OverlayItem, monitor) => {
-        const dropperDimensions = pdfRef.current?.getBoundingClientRect();
         const offset = monitor.getClientOffset();
+        const dropperDimensions = pdfRef.current
+          ?.querySelector(`.pdf-page[data-page-number='${pageNumber}']`)
+          ?.getBoundingClientRect();
 
         if (!dropperDimensions || !offset) return;
 
@@ -62,7 +63,11 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
     });
 
     return (
-      <div ref={drop} className="h-full w-full">
+      <div
+        ref={drop}
+        className="pdf-page h-full w-full relative flex justify-center my-2"
+        data-page-number={pageNumber}
+      >
         {children}
       </div>
     );

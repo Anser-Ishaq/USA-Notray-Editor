@@ -65,34 +65,35 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
 
       for (let pageNumber = 1; pageNumber <= totalNumPages; pageNumber++) {
         if (pageNumber <= numPages!) {
-          pages.push(
-            <div
-              className="pdf-page w-full relative flex justify-center my-2"
-              key={pageNumber}
-            >
-              <DroppableArea
-                addOverlay={addOverlay}
-                updateOverlays={updateOverlays}
-                pdfRef={pdfRef}
-                overlays={overlays}
-                pageNumber={pageNumber}
-              >
-                <OverlayLayer
-                  overlays={documentOverlays?.filter(
-                    (ov) => ov?.pageNumber === pageNumber,
-                  )}
-                  updateOverlays={updateOverlays}
-                />
-                <Page
-                  className="border-solid border-gray-300 p-2"
-                  pageNumber={pageNumber}
-                />
-              </DroppableArea>
-            </div>,
-          );
-        } else {
+          // Render styled pages
           pages.push(
             <DroppableArea
+              key={pageNumber}
+              addOverlay={addOverlay}
+              updateOverlays={updateOverlays}
+              pdfRef={pdfRef}
+              overlays={overlays}
+              pageNumber={pageNumber}
+            >
+              <OverlayLayer
+                overlays={documentOverlays?.filter(
+                  (ov) => ov?.pageNumber === pageNumber,
+                )}
+                updateOverlays={updateOverlays}
+              />
+              <Page
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                className="border-solid border-gray-300 p-2"
+                pageNumber={pageNumber}
+              />
+            </DroppableArea>,
+          );
+        } else {
+          // Render blank pages
+          pages.push(
+            <DroppableArea
+              key={pageNumber}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
               pdfRef={pdfRef}
@@ -100,8 +101,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
               pageNumber={pageNumber}
             >
               <div
-                key={`extra-page-${pageNumber}`}
-                className="h-screen border-solid border-gray-300 flex items-center justify-center my-2"
+                className="h-screen border-solid w-full border-gray-300 flex items-center justify-center my-2"
                 style={{ pageBreakAfter: 'always' }}
               >
                 <span className="text-xs bg-white p-2 text-gray-200">

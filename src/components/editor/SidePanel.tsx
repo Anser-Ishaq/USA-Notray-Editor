@@ -89,42 +89,37 @@ const SidePanel: React.FC<SidePanelProps> = ({
 
     const pdf = new jsPDF('p', 'pt', 'a4');
     const pages = input.querySelectorAll('.pdf-page');
-    const pagePromises = [];
+
+    dispatch(
+      setLoader({
+        isLoading: true,
+        message: 'Compiling PDF',
+      }),
+    );
 
     for (let i = 0; i < pages.length; i++) {
       const page = pages[i] as HTMLElement;
 
       // Scale the canvas to match A4 size
-      const canvasPromise = html2canvas(page, { scale: 2, useCORS: true }).then(
-        (canvas) => {
-          const imgData = canvas.toDataURL('image/jpeg', 0.5); // Compress the image to reduce size
+      const canvas = await html2canvas(page, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/jpeg', 0.5); // Compress the image to reduce size
 
-          const imgProps = pdf.getImageProperties(imgData);
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-          if (i > 0) {
-            pdf.addPage();
-          }
+      if (i > 0) {
+        pdf.addPage();
+      }
 
-          dispatch(
-            setLoader({
-              isLoading: true,
-              message: 'Compiling Page number: ' + (i + 1),
-            }),
-          );
-
-          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        },
+      dispatch(
+        setLoader({
+          isLoading: true,
+          message: 'Compiling Page number: ' + (i + 1),
+        }),
       );
 
-      pagePromises.push(canvasPromise);
-
-      // Process batch to manage memory
-      if (pagePromises.length >= 5 || i === pages.length - 1) {
-        await Promise.all(pagePromises);
-        pagePromises.length = 0; // Reset the array
-      }
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
     }
 
     dispatch(
@@ -145,10 +140,12 @@ const SidePanel: React.FC<SidePanelProps> = ({
   }
 
   // This is required because JSON.stringify cannot parse circular JSON
-  const sanitizedOverlays = overlays?.map((ov) => {
-    const { children: _, ...sanitizedOverlay } = ov;
-    return sanitizedOverlay;
-  });
+  const sanitizedOverlays = overlays
+    ?.filter((ov) => !!ov?.jobDocId && !!ov?.pageNumber && ov?.position)
+    ?.map((ov) => {
+      const { children: _, ...sanitizedOverlay } = ov;
+      return sanitizedOverlay;
+    });
 
   const endSession = () => {
     updateSessionStatus(
@@ -225,6 +222,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
             block
             className="mb-2 flex-1"
             onClick={endSession}
+            disabled={!selectedDocument}
           >
             End Session
           </Button>
@@ -234,6 +232,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
             block
             className="mb-2 flex-1"
             onClick={completeNotarization}
+            disabled={!selectedDocument}
           >
             Complete
           </Button>
