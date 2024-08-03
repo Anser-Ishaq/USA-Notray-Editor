@@ -1,4 +1,14 @@
+import { Store } from '@reduxjs/toolkit';
+
+import { globalStore } from '@/store';
+
 class DataHelper {
+  store?: typeof globalStore = undefined;
+
+  setStore(store: Store) {
+    this.store = store;
+  }
+  getStore = () => this.store;
   getInitials(fullName: string) {
     // Split the full name by spaces
     const nameParts = fullName.trim().split(/\s+/);

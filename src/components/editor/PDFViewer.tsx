@@ -2,12 +2,22 @@ import { Spin } from 'antd';
 import React, { useCallback, useImperativeHandle, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 
+import DroppableArea from '@/components/editor/DroppableArea';
+import { OverlayItem } from '@/types/app';
+
 interface PDFViewerProps {
   pdfUrl?: string;
+  addOverlay: (item: OverlayItem) => void;
+  updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
+  pdfRef: React.RefObject<HTMLDivElement>;
+  overlays: OverlayItem[];
 }
 
 const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
-  ({ pdfUrl }, ref: React.ForwardedRef<any>) => {
+  (
+    { pdfUrl, addOverlay, updateOverlays, overlays, pdfRef },
+    ref: React.ForwardedRef<any>,
+  ) => {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [extraPages, setExtraPages] = useState<number[]>([]);
@@ -50,23 +60,37 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
         if (pageNumber <= numPages!) {
           pages.push(
             <div className="w-full flex justify-center my-2" key={pageNumber}>
-              <Page
-                className="pdf-page border-solid border-gray-300 p-2"
-                pageNumber={pageNumber}
-              />
+              <DroppableArea
+                addOverlay={addOverlay}
+                updateOverlays={updateOverlays}
+                pdfRef={pdfRef}
+                overlays={overlays}
+              >
+                <Page
+                  className="pdf-page border-solid border-gray-300 p-2"
+                  pageNumber={pageNumber}
+                />
+              </DroppableArea>
             </div>,
           );
         } else {
           pages.push(
-            <div
-              key={`extra-page-${pageNumber}`}
-              className="h-screen border-solid border-gray-300 flex items-center justify-center my-2"
-              style={{ pageBreakAfter: 'always' }}
+            <DroppableArea
+              addOverlay={addOverlay}
+              updateOverlays={updateOverlays}
+              pdfRef={pdfRef}
+              overlays={overlays}
             >
-              <span className="text-xs bg-white p-2 text-gray-200">
-                Blank Page {pageNumber}
-              </span>
-            </div>,
+              <div
+                key={`extra-page-${pageNumber}`}
+                className="h-screen border-solid border-gray-300 flex items-center justify-center my-2"
+                style={{ pageBreakAfter: 'always' }}
+              >
+                <span className="text-xs bg-white p-2 text-gray-200">
+                  Blank Page {pageNumber}
+                </span>
+              </div>
+            </DroppableArea>,
           );
         }
       }

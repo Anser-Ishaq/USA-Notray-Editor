@@ -12,7 +12,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
 
-import DroppableArea from '@/components/editor/DroppableArea';
 import OverlayLayer from '@/components/editor/OverlayLayer';
 import PDFViewer from '@/components/editor/PDFViewer';
 import SidePanel from '@/components/editor/SidePanel';
@@ -37,7 +36,8 @@ const job_docs: Jobdoc[] = [
     company_id: null,
     job_id: '244',
     file_name: 'michael poitevint.pdf',
-    file_path: 'https://getsamplefiles.com/download/pdf/sample-1.pdf',
+    file_path:
+      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
     white_pages: 0,
     status: 'COMPLETED',
     date_created: '2024-02-01T16:47:12.000Z',
@@ -46,7 +46,8 @@ const job_docs: Jobdoc[] = [
     created_at: '2024-02-01T16:47:12.000Z',
     updated_at: null,
     deleted_at: null,
-    complete_url: 'https://getsamplefiles.com/download/pdf/sample-1.pdf',
+    complete_url:
+      'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf',
     doc_name: 'michael poitevint.pdf',
     doc_url: null,
     Document: null,
@@ -176,7 +177,10 @@ const Dashboard: React.FC = () => {
   }, [sessionData, userSession]);
 
   const documentOverlays = useMemo(
-    () => overlays?.filter((ov) => ov?.jobDocId === selectedDocument?.ID),
+    () =>
+      selectedDocument?.ID
+        ? overlays?.filter((ov) => ov?.jobDocId === selectedDocument?.ID)
+        : [],
     [overlays, selectedDocument?.ID],
   );
 
@@ -220,11 +224,13 @@ const Dashboard: React.FC = () => {
               </Button>
             </div>
             <div className="mx-2">
-              <iframe
-                src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
-                allow="camera; microphone; fullscreen; speaker; display-capture"
-                className="border-none w-full h-[calc(100vh-150px)] rounded "
-              />
+              {import.meta.env.PROD ? (
+                <iframe
+                  src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
+                  allow="camera; microphone; fullscreen; speaker; display-capture"
+                  className="border-none w-full h-[calc(100vh-150px)] rounded "
+                />
+              ) : null}
             </div>
           </div>
           <div
@@ -232,27 +238,25 @@ const Dashboard: React.FC = () => {
             id="pdf-viewer"
             className="h-full col-span-6 relative"
           >
-            <DroppableArea
+            <OverlayLayer
+              overlays={documentOverlays}
+              updateOverlays={updateOverlays}
+            />
+            <PDFViewer
+              ref={pdfDocumentRef}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
               pdfRef={pdfRef}
               overlays={overlays}
-            >
-              <OverlayLayer
-                overlays={documentOverlays}
-                updateOverlays={updateOverlays}
-              />
-              <PDFViewer
-                ref={pdfDocumentRef}
-                pdfUrl={
-                  selectedDocument?.file_path ??
-                  'https://getsamplefiles.com/download/pdf/sample-2.pdf'
-                }
-              />
-            </DroppableArea>
+              pdfUrl={
+                selectedDocument?.file_path ??
+                'https://ewr1.vultrobjects.com/notary-storage/notary-storage/files/job/1048/Seller%20Closing%20Documents%20TBS.pdf'
+              }
+            />
           </div>
           <SidePanel
             data={sessionData}
+            userSession={userSession}
             documentsData={participantDocs}
             notary={notary}
             overlays={overlays}

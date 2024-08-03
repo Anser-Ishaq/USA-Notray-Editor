@@ -43,6 +43,10 @@ class SocketService {
   sendPageSync(data: PageSyncEventData): void {
     this.socket?.emit('PAGE_SYNC', data);
   }
+
+  emit(event: string, data: any): void {
+    this.socket?.emit(event, data);
+  }
 }
 
 const socketService = new SocketService();

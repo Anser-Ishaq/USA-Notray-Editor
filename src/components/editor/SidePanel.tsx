@@ -3,6 +3,7 @@ import { Button, message } from 'antd';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 
 import DraggableElement from '@/components/editor/DraggableElement';
 import DataHelper from '@/helper/DataHelper';
@@ -15,10 +16,14 @@ import {
   Jobdoc,
   ParticipantDocsResponse,
 } from '@/service/shared/Response/participantDocs';
+import { UserSessionResponse } from '@/service/shared/Response/userSession';
+import socketService from '@/service/socket/socketService';
+import { hideLoader, setLoader } from '@/store/slices/app';
 import { ISessionStatus, ItemType, OverlayItem } from '@/types/app';
 
 interface SidePanelProps {
   data: NotarySessionResponse | undefined;
+  userSession?: UserSessionResponse;
   notary: ParticipantDocsResponse['notary'][0] | undefined;
   documentsData: ParticipantDocsResponse | undefined;
   overlays?: OverlayItem[];
@@ -28,12 +33,15 @@ interface SidePanelProps {
 
 const SidePanel: React.FC<SidePanelProps> = ({
   data,
+  userSession,
   notary,
   documentsData,
   overlays,
   sessionId,
   selectedDocument,
 }) => {
+  const dispatch = useDispatch();
+
   const { mutate: updateSessionStatus, isPending } = useUpdateSessionMutation();
   const { mutate: completeJobDocument, isPending: savingDocument } =
     useCompleteJobDocumentMutation();
@@ -58,62 +66,83 @@ const SidePanel: React.FC<SidePanelProps> = ({
   //   return base64;
   // }
 
-  async function exportPDF() {
-    const input = document.getElementById('pdf-viewer');
-    if (!input) return;
-
-    const canvas = await html2canvas(input, { scale: 2, useCORS: true });
-    const base64 = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'p',
-      unit: 'px',
-      format: [canvas.width, canvas.height],
-    });
-
-    pdf.addImage(base64, 'PNG', 0, 0, canvas.width, canvas.height);
-    pdf.save('test.pdf');
-    return base64;
-  }
-
   // async function exportPDF() {
   //   const input = document.getElementById('pdf-viewer');
   //   if (!input) return;
 
-  //   const pdf = new jsPDF('p', 'pt', 'a4');
-  //   const pages = input.querySelectorAll('.pdf-page');
-  //   const pagePromises = [];
+  //   const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+  //   const base64 = canvas.toDataURL('image/png');
+  //   const pdf = new jsPDF({
+  //     orientation: 'p',
+  //     unit: 'px',
+  //     format: [canvas.width, canvas.height],
+  //   });
 
-  //   for (let i = 0; i < pages.length; i++) {
-  //     const page = pages[i] as HTMLElement;
-
-  //     // Scale the canvas to match A4 size
-  //     const canvasPromise = html2canvas(page, { scale: 2, useCORS: true }).then(
-  //       (canvas) => {
-  //         const imgData = canvas.toDataURL('image/jpeg', 0.5); // Compress the image to reduce size
-
-  //         const imgProps = pdf.getImageProperties(imgData);
-  //         const pdfWidth = pdf.internal.pageSize.getWidth();
-  //         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-  //         if (i > 0) {
-  //           pdf.addPage();
-  //         }
-
-  //         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-  //       },
-  //     );
-
-  //     pagePromises.push(canvasPromise);
-
-  //     // Process batch to manage memory
-  //     if (pagePromises.length >= 5 || i === pages.length - 1) {
-  //       await Promise.all(pagePromises);
-  //       pagePromises.length = 0; // Reset the array
-  //     }
-  //   }
-
+  //   pdf.addImage(base64, 'PNG', 0, 0, canvas.width, canvas.height);
   //   pdf.save('test.pdf');
+  //   return base64;
   // }
+
+  async function exportPDF() {
+    const input = document.getElementById('pdf-viewer');
+    if (!input) return;
+
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pages = input.querySelectorAll('.pdf-page');
+    const pagePromises = [];
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i] as HTMLElement;
+
+      // Scale the canvas to match A4 size
+      const canvasPromise = html2canvas(page, { scale: 2, useCORS: true }).then(
+        (canvas) => {
+          const imgData = canvas.toDataURL('image/jpeg', 0.5); // Compress the image to reduce size
+
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+          if (i > 0) {
+            pdf.addPage();
+          }
+
+          dispatch(
+            setLoader({
+              isLoading: true,
+              message: 'Compiling Page number: ' + (i + 1),
+            }),
+          );
+
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        },
+      );
+
+      pagePromises.push(canvasPromise);
+
+      // Process batch to manage memory
+      if (pagePromises.length >= 5 || i === pages.length - 1) {
+        await Promise.all(pagePromises);
+        pagePromises.length = 0; // Reset the array
+      }
+    }
+
+    dispatch(
+      setLoader({
+        isLoading: true,
+        message: 'Finalizing the PDF',
+      }),
+    );
+
+    pdf.save('test.pdf');
+
+    // Get the PDF as a base64 string
+    const base64PDF = pdf.output('datauristring');
+
+    dispatch(hideLoader());
+
+    return base64PDF;
+  }
 
   // This is required because JSON.stringify cannot parse circular JSON
   const sanitizedOverlays = overlays?.map((ov) => {
@@ -138,6 +167,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
   };
 
   const completeNotarization = async () => {
+    dispatch(setLoader({ isLoading: true, message: 'Compiling PDF ...' }));
+
     const base64Doc = await exportPDF();
 
     // // This is required because JSON.stringify cannot parse circular JSON
@@ -146,25 +177,40 @@ const SidePanel: React.FC<SidePanelProps> = ({
       return sanitizedOverlay;
     });
 
-    updateSessionStatus(
+    console.log('BASE 64', base64Doc);
+
+    // updateSessionStatus(
+    //   {
+    //     sessionId: sessionId ?? 246,
+    //     jobId: data?.session?.[0]?.job_id ?? 0,
+    //     status: ISessionStatus.NOTARIZATION_COMPLETED,
+    //     metadata: JSON.stringify(sanitizedOverlays),
+    //   },
+    //   {
+    //     onSuccess: () => {
+    completeJobDocument(
       {
-        sessionId: sessionId ?? 246,
-        jobId: data?.session?.[0]?.job_id ?? 0,
-        status: ISessionStatus.NOTARIZATION_COMPLETED,
-        metadata: JSON.stringify(sanitizedOverlays),
+        job_id: data?.session?.[0]?.job_id ?? 0,
+        job_doc_id: documentsData?.job_docs?.[0]?.ID ?? 0,
+        status: 'COMPLETED',
+        doc_base64: base64Doc ?? '',
+        docId: documentsData?.job_docs?.[0]?.ID ?? 0,
       },
       {
         onSuccess: () => {
-          completeJobDocument({
-            job_id: data?.session?.[0]?.job_id ?? 0,
-            job_doc_id: documentsData?.job_docs?.[0]?.ID ?? 0,
-            status: 'COMPLETED',
-            doc_base64: base64Doc ?? '',
-            docId: documentsData?.job_docs?.[0]?.ID ?? 0,
+          socketService.emit('message', {
+            socketRoomId: userSession?.[0]?.socket_room_id,
+            front_doc_index: documentsData?.job_docs?.[0]?.ID,
+            doc_id: documentsData?.job_docs?.[0]?.ID,
+            action: 'completedocument',
+            jobId: userSession?.[0]?.job_id,
           });
         },
       },
     );
+    //     },
+    //   },
+    // );
   };
 
   return (

@@ -1,11 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import { HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import './styles/index.css';
 
-import App from './App.tsx';
+import AppRoutes from './App.tsx';
 import ThemeProvider from './settings/ThemeProvider.tsx';
 
 export function WrappedApp() {
@@ -16,9 +16,9 @@ export function WrappedApp() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClientRef.current}>
-        <HashRouter>
-          <App />
-        </HashRouter>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
       </QueryClientProvider>
     </ThemeProvider>
   );
