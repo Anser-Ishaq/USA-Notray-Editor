@@ -172,10 +172,10 @@ const SidePanel: React.FC<SidePanelProps> = ({
     const base64Doc = await exportPDF();
 
     // // This is required because JSON.stringify cannot parse circular JSON
-    const sanitizedOverlays = overlays?.map((ov) => {
-      const { children: _, ...sanitizedOverlay } = ov;
-      return sanitizedOverlay;
-    });
+    // const sanitizedOverlays = overlays?.map((ov) => {
+    //   const { children: _, ...sanitizedOverlay } = ov;
+    //   return sanitizedOverlay;
+    // });
 
     console.log('BASE 64', base64Doc);
 
