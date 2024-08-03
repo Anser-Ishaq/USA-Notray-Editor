@@ -11,10 +11,11 @@ interface DroppableAreaProps {
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
   pdfRef: React.RefObject<HTMLDivElement>;
   overlays: OverlayItem[];
+  pageNumber: number;
 }
 
 const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
-  ({ children, addOverlay, updateOverlays, pdfRef, overlays }) => {
+  ({ children, addOverlay, updateOverlays, pdfRef, overlays, pageNumber }) => {
     const [, drop] = useDrop({
       accept: [ItemType.TEXT, ItemType.IMAGE, ItemType.INPUT],
       canDrop: (_item: OverlayItem, monitor) => {
@@ -45,6 +46,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
             ...prevOverlays.filter((ov) => ov?.id !== item.id),
             {
               ...item,
+              pageNumber,
               position: { x, y },
             },
           ]);
@@ -52,6 +54,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
           addOverlay({
             ...item,
             id: item?.id ?? uuid.v4(),
+            pageNumber,
             position: { x, y },
           });
         }

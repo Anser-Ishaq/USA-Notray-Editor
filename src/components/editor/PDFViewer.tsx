@@ -3,19 +3,22 @@ import React, { useCallback, useImperativeHandle, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 
 import DroppableArea from '@/components/editor/DroppableArea';
+import OverlayLayer from '@/components/editor/OverlayLayer';
+import { Jobdoc } from '@/service/shared/Response/participantDocs';
 import { OverlayItem } from '@/types/app';
 
 interface PDFViewerProps {
   pdfUrl?: string;
   addOverlay: (item: OverlayItem) => void;
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
+  selectedDocument?: Jobdoc;
   pdfRef: React.RefObject<HTMLDivElement>;
   overlays: OverlayItem[];
 }
 
 const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
   (
-    { pdfUrl, addOverlay, updateOverlays, overlays, pdfRef },
+    { pdfUrl, addOverlay, updateOverlays, selectedDocument, overlays, pdfRef },
     ref: React.ForwardedRef<any>,
   ) => {
     const [numPages, setNumPages] = useState<number | null>(null);
@@ -56,18 +59,32 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
       const totalNumPages = (numPages || 0) + extraPages.length;
       const pages = [];
 
+      const documentOverlays = selectedDocument?.ID
+        ? overlays?.filter((ov) => ov?.jobDocId === selectedDocument?.ID)
+        : [];
+
       for (let pageNumber = 1; pageNumber <= totalNumPages; pageNumber++) {
         if (pageNumber <= numPages!) {
           pages.push(
-            <div className="w-full flex justify-center my-2" key={pageNumber}>
+            <div
+              className="pdf-page w-full relative flex justify-center my-2"
+              key={pageNumber}
+            >
               <DroppableArea
                 addOverlay={addOverlay}
                 updateOverlays={updateOverlays}
                 pdfRef={pdfRef}
                 overlays={overlays}
+                pageNumber={pageNumber}
               >
+                <OverlayLayer
+                  overlays={documentOverlays?.filter(
+                    (ov) => ov?.pageNumber === pageNumber,
+                  )}
+                  updateOverlays={updateOverlays}
+                />
                 <Page
-                  className="pdf-page border-solid border-gray-300 p-2"
+                  className="border-solid border-gray-300 p-2"
                   pageNumber={pageNumber}
                 />
               </DroppableArea>
@@ -80,6 +97,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
               updateOverlays={updateOverlays}
               pdfRef={pdfRef}
               overlays={overlays}
+              pageNumber={pageNumber}
             >
               <div
                 key={`extra-page-${pageNumber}`}

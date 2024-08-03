@@ -12,7 +12,6 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
 
-import OverlayLayer from '@/components/editor/OverlayLayer';
 import PDFViewer from '@/components/editor/PDFViewer';
 import SidePanel from '@/components/editor/SidePanel';
 import {
@@ -176,14 +175,6 @@ const Dashboard: React.FC = () => {
     }
   }, [sessionData, userSession]);
 
-  const documentOverlays = useMemo(
-    () =>
-      selectedDocument?.ID
-        ? overlays?.filter((ov) => ov?.jobDocId === selectedDocument?.ID)
-        : [],
-    [overlays, selectedDocument?.ID],
-  );
-
   return (
     <DndProvider backend={HTML5Backend}>
       <Spin spinning={isLoading || userSessionLoading || docsLoading}>
@@ -233,19 +224,12 @@ const Dashboard: React.FC = () => {
               ) : null}
             </div>
           </div>
-          <div
-            ref={pdfRef}
-            id="pdf-viewer"
-            className="h-full col-span-6 relative"
-          >
-            <OverlayLayer
-              overlays={documentOverlays}
-              updateOverlays={updateOverlays}
-            />
+          <div ref={pdfRef} id="pdf-viewer" className="h-full col-span-6">
             <PDFViewer
               ref={pdfDocumentRef}
               addOverlay={addOverlay}
               updateOverlays={updateOverlays}
+              selectedDocument={selectedDocument}
               pdfRef={pdfRef}
               overlays={overlays}
               pdfUrl={

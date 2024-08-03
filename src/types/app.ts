@@ -30,4 +30,5 @@ export interface OverlayItem {
   initialSize?: { width: number; height: number };
   width: number;
   height: number;
+  pageNumber?: number;
 }
