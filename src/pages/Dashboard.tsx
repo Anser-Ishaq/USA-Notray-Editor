@@ -175,7 +175,7 @@ const Dashboard: React.FC = () => {
               </Button>
             </div>
             <div className="mx-2">
-              {import.meta.env.DEV ? (
+              {import.meta.env.PROD ? (
                 <iframe
                   src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
                   allow="camera; microphone; fullscreen; speaker; display-capture"
