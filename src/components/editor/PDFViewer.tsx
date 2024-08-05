@@ -1,5 +1,6 @@
 import { Spin } from 'antd';
 import React, { useCallback, useImperativeHandle, useState } from 'react';
+import { isMobile, isTablet } from 'react-device-detect';
 import { Document, Page } from 'react-pdf';
 
 import DroppableArea from '@/components/editor/DroppableArea';
@@ -23,7 +24,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
     const [numPages, setNumPages] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [extraPages, setExtraPages] = useState<number[]>([]);
-    const [zoom, setZoom] = useState(1.3); // Zoom state
+    const [zoom, setZoom] = useState(isMobile || isTablet ? 0.6 : 1.3); // Zoom state
 
     const onDocumentLoadSuccess = useCallback(
       ({ numPages }: { numPages: number }) => {

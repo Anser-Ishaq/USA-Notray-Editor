@@ -1,4 +1,4 @@
-// Dashboard.tsx
+import { PlusCircleFilled, SyncOutlined } from '@ant-design/icons';
 import { Button, Select, Spin } from 'antd';
 import React, {
   useCallback,
@@ -7,8 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { isMobile } from 'react-device-detect';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 import { pdfjs } from 'react-pdf';
 import { useParams } from 'react-router-dom';
 
@@ -133,14 +135,47 @@ const Dashboard: React.FC = () => {
   }, [participantDocs?.job_docs]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
       <Spin spinning={isLoading || userSessionLoading || docsLoading}>
         <div
           ref={editorContainerRef}
-          className="grid grid-cols-12 h-screen overflow-y-auto w-full"
+          className="grid grid-cols-1 md:grid-cols-12 h-screen overflow-y-auto w-full"
         >
-          <div className="col-span-2" />
-          <div className="bg-gray-50 h-full overflow-y-auto fixed left-0 w-1/5">
+          <div className="flex md:hidden justify-between w-full z-20 fixed left-2 top-2 flex-row items-center">
+            <div className="flex gap-2">
+              <Button
+                shape="circle"
+                type="primary"
+                block
+                className="mb-2 flex-1"
+                icon={<PlusCircleFilled />}
+                onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
+              />
+              <Button
+                shape="circle"
+                type="primary"
+                block
+                className="mb-2 flex-1"
+                icon={<SyncOutlined />}
+                onClick={onPageSync}
+              />
+            </div>
+            <Select
+              loading={docsLoading}
+              options={docsOptions}
+              value={selectedDocument?.ID}
+              allowClear
+              onChange={(value: number) => {
+                setSelectedDocument(
+                  participantDocs?.job_docs?.find((jd) => jd.ID === value),
+                );
+              }}
+              className="mr-6"
+              placeholder="Select Document"
+            />
+          </div>
+          <div className="hidden md:block md:col-span-2" />
+          <div className="hidden md:block bg-gray-50 h-full overflow-y-auto md:fixed md:left-0 md:w-1/5 w-full md:col-span-2">
             <div className="p-2">
               <Select
                 loading={docsLoading}
@@ -184,7 +219,10 @@ const Dashboard: React.FC = () => {
               ) : null}
             </div>
           </div>
-          <div id="pdf-viewer" className="h-full col-span-8">
+          <div
+            id="pdf-viewer"
+            className="mb-28 h-full col-span-12 md:col-span-8"
+          >
             <PDFViewer
               ref={pdfDocumentRef}
               addOverlay={addOverlay}
@@ -194,7 +232,7 @@ const Dashboard: React.FC = () => {
               pdfUrl={selectedDocument?.file_path}
             />
           </div>
-          <div className="col-span-2" />
+          <div className="hidden md:block md:col-span-2" />
           <SidePanel
             zoomIn={zoomIn}
             zoomOut={zoomOut}

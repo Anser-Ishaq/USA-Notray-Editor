@@ -179,61 +179,92 @@ const SidePanel: React.FC<SidePanelProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 h-full overflow-y-auto fixed right-0 w-1/5 col-span-3">
-      <div className="p-2">
-        <h3 className="text-xl mb-4">PDF</h3>
-        <div className="flex items-center gap-4 mb-2">
-          <Button
-            color="error"
-            type="primary"
-            block
-            className="mb-2 flex-1"
-            onClick={zoomIn}
-            icon={<ZoomInOutlined />}
-            disabled={!selectedDocument}
-          />
-          <Button
-            type="primary"
-            block
-            className="mb-2 flex-1"
-            onClick={zoomOut}
-            icon={<ZoomOutOutlined />}
-            disabled={!selectedDocument}
+    <div className="flex flex-col fixed bottom-0 left-0 right-0 md:left-auto md:right-0 md:w-1/5 md:h-screen md:top-0">
+      {import.meta.env.PROD ? (
+        <div className="md:hidden w-2/5 bg-gray-200/50 overflow-y-scroll rounded-lg self-end h-32 mb-4 mr-4 z-20">
+          <iframe
+            src={data?.jobSchedule?.[0]?.whereby_host_link}
+            allow="camera; microphone; fullscreen; speaker; display-capture"
+            className="border-none w-full h-[calc(100vh-150px)] rounded "
           />
         </div>
-        <div className="flex items-center gap-4 mb-2">
-          <Button
-            loading={isPending}
-            color="error"
-            type="primary"
-            block
-            className="mb-2 flex-1"
-            onClick={endSession}
-            disabled={!selectedDocument}
-          >
-            End Session
-          </Button>
-          <Button
-            loading={isPending || savingDocument}
-            type="primary"
-            block
-            className="mb-2 flex-1"
-            onClick={completeNotarization}
-            disabled={!selectedDocument}
-          >
-            Complete
-          </Button>
-        </div>
-        {data?.job_participant?.map(
-          (jp: NotarySessionResponse['job_participant'][0]) => (
-            <div key={jp.ID} className="flex flex-col mb-4">
-              <h3 className="text-xl mb-4">{jp.fullname}</h3>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+      ) : null}
+      <div className="flex md:hidden w-full justify-end items-center gap-2 mb-2">
+        <Button
+          type="primary"
+          shape="round"
+          className="flex-shrink-0"
+          onClick={zoomIn}
+          icon={<ZoomInOutlined />}
+          disabled={!selectedDocument}
+        />
+        <Button
+          shape="round"
+          type="primary"
+          className="flex-shrink-0 mr-4"
+          onClick={zoomOut}
+          icon={<ZoomOutOutlined />}
+          disabled={!selectedDocument}
+        />
+      </div>
+      <div className="h-full bg-gray-50 overflow-x-auto">
+        <div className="p-2 flex flex-nowrap md:flex-wrap">
+          <div className="flex-shrink-0 mr-4 md:mr-0 md:w-full mb-4">
+            <h3 className="hidden md:block text-xl mb-3 whitespace-nowrap">
+              PDF Controls
+            </h3>
+            <div className="hidden md:flex items-center gap-2 mb-2">
+              <Button
+                color="error"
+                type="primary"
+                className="flex-shrink-0"
+                onClick={zoomIn}
+                icon={<ZoomInOutlined />}
+                disabled={!selectedDocument}
+              />
+              <Button
+                type="primary"
+                className="flex-shrink-0"
+                onClick={zoomOut}
+                icon={<ZoomOutOutlined />}
+                disabled={!selectedDocument}
+              />
+            </div>
+            <div className="hidden md:flex flex-col items-center gap-2 mb-2">
+              <Button
+                loading={isPending}
+                color="error"
+                type="primary"
+                className="flex-shrink-0 w-full whitespace-nowrap"
+                onClick={endSession}
+                disabled={!selectedDocument}
+              >
+                End Session
+              </Button>
+              <Button
+                loading={isPending || savingDocument}
+                type="primary"
+                className="flex-shrink-0 w-full whitespace-nowrap"
+                onClick={completeNotarization}
+                disabled={!selectedDocument}
+              >
+                Complete
+              </Button>
+            </div>
+          </div>
+
+          {data?.job_participant?.map((jp) => (
+            <div key={jp.ID} className="flex-shrink-0 mr-4 md:mr-0 md:w-full">
+              <h3 className="text-xl mb-4 whitespace-nowrap">{jp.fullname}</h3>
+              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-x-4 gap-y-0 md:gap-y-1">
                 <DraggableElement
                   jobDocId={selectedDocument?.ID}
                   type={ItemType.INPUT}
                 >
-                  <Button type="default" block className="mb-2">
+                  <Button
+                    type="default"
+                    className="flex-shrink-0 md:w-full whitespace-nowrap"
+                  >
                     Text
                   </Button>
                 </DraggableElement>
@@ -242,7 +273,10 @@ const SidePanel: React.FC<SidePanelProps> = ({
                   type={ItemType.TEXT}
                   overlayText={jp.fullname}
                 >
-                  <Button type="default" block className="mb-2">
+                  <Button
+                    type="default"
+                    className="flex-shrink-0 md:w-full whitespace-nowrap"
+                  >
                     Name
                   </Button>
                 </DraggableElement>
@@ -251,7 +285,10 @@ const SidePanel: React.FC<SidePanelProps> = ({
                   type={ItemType.IMAGE}
                   imgSrc={jp.signature_filename}
                 >
-                  <Button type="default" block className="mb-2">
+                  <Button
+                    type="default"
+                    className="flex-shrink-0 md:w-full whitespace-nowrap"
+                  >
                     Sign
                   </Button>
                 </DraggableElement>
@@ -260,81 +297,108 @@ const SidePanel: React.FC<SidePanelProps> = ({
                   type={ItemType.TEXT}
                   overlayText={DataHelper.getInitials(jp.fullname)}
                 >
-                  <Button type="default" block className="mb-2">
+                  <Button
+                    type="default"
+                    className="flex-shrink-0 md:w-full whitespace-nowrap"
+                  >
                     Initial
                   </Button>
                 </DraggableElement>
               </div>
             </div>
-          ),
-        )}
-        {notary ? (
-          <>
-            <h3 className="mb-4 mt-4">Notary</h3>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.INPUT}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Text
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.TEXT}
-              overlayText={notary?.fullname}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Name
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.TEXT}
-              overlayText={notary?.title}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Title
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.TEXT}
-              overlayText={notary?.commission_id}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Commission ID
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.TEXT}
-              overlayText={notary?.eo_expdate}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Commission Exp Date
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.IMAGE}
-              imgSrc={notary?.seal}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Seal
-              </Button>
-            </DraggableElement>
-            <DraggableElement
-              jobDocId={selectedDocument?.ID}
-              type={ItemType.TEXT}
-              overlayText={notary?.disclosure}
-            >
-              <Button type="default" block className="justify-start mb-2">
-                Disclosure
-              </Button>
-            </DraggableElement>
-          </>
-        ) : null}
+          ))}
+
+          {notary && (
+            <div className="flex-shrink-0 mr-4 md:mr-0 md:w-full">
+              <h3 className="mb-4 md:mt-4 whitespace-nowrap">Notary</h3>
+              <div className="flex md:block">
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.INPUT}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Text
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={notary?.fullname}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Name
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={notary?.title}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Title
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={notary?.commission_id}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Commission ID
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={notary?.eo_expdate}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Commission Exp Date
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.IMAGE}
+                  imgSrc={notary?.seal}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Seal
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={notary?.disclosure}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Disclosure
+                  </Button>
+                </DraggableElement>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
