@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 export const ItemType = {
   TEXT: 'text',
   INPUT: 'input',
+  TAG_INPUT: 'tagInput',
+  TAG: 'tag',
   IMAGE: 'image',
   WHITE_BOX: 'whiteBox',
 } as const;

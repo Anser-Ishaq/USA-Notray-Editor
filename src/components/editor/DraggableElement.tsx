@@ -23,6 +23,8 @@ const getInitialSize = (type?: ItemTypeValues) => {
       return { width: 10, height: 30 };
     case 'whiteBox':
       return { width: 100, height: 60 };
+    case 'tag':
+      return { width: 150, height: 80 };
     default:
       return { width: 50, height: 50 };
   }

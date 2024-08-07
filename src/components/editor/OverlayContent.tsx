@@ -15,15 +15,26 @@ function autoGrow(inputId: string) {
   input.style.width = inputMirrorDiv.offsetWidth + 'px';
 }
 
-const InputElement = ({ overlay }: { overlay: OverlayItem }) => {
+const InputElement = ({
+  overlay,
+  className,
+  inputClassName,
+}: {
+  overlay: OverlayItem;
+  className?: string;
+  inputClassName?: string;
+}) => {
   return (
     <div
-      className="overlayed-input-container"
+      className={classNames('overlayed-input-container', className)}
       id={'inputContainer-' + overlay?.id}
     >
       <input
         type="text"
-        className="font-body ring-none border-none"
+        className={classNames(
+          'font-body ring-none border-none',
+          inputClassName,
+        )}
         id={'input-' + overlay?.id}
         onInput={() => overlay?.id && autoGrow(overlay.id)}
       />
@@ -48,6 +59,23 @@ const OverlayContent = ({
         return <div className="w-full h-full bg-white" />;
       case ItemType.INPUT:
         return <InputElement overlay={overlay} />;
+      case ItemType.TAG_INPUT:
+        return (
+          <InputElement
+            overlay={overlay}
+            className="text-red-500 px-3 py-2 border-solid border-red-500"
+            inputClassName="text-red-500"
+          />
+        );
+      case ItemType.TAG:
+        return (
+          <div
+            id={overlay.id}
+            className="w-full h-full flex justify-center items-center border-solid border-red-500"
+          >
+            <p className="text-sm text-red-500 font-body">Fill in here</p>
+          </div>
+        );
       case ItemType.TEXT:
         return (
           <p
@@ -97,7 +125,11 @@ const OverlayContent = ({
       }}
     >
       <ResizableBox
-        style={{ width: overlay?.type === 'input' ? 'max-content' : undefined }}
+        style={{
+          width: ['input', 'tagInput']?.includes(overlay?.type)
+            ? 'max-content'
+            : undefined,
+        }}
         width={overlay.width}
         height={overlay.height}
         onResizeStop={(_, data) => {
@@ -123,7 +155,9 @@ const OverlayContent = ({
         })}
         <div
           className={classNames(
-            overlay?.type === 'input' ? 'left-0 top-0' : 'top-0 right-0',
+            ['input', 'tagInput']?.includes(overlay?.type)
+              ? 'left-0 top-0'
+              : 'top-0 right-0',
             'cancel-icon hidden text-red-500 absolute cursor-pointer hover:text-red-700 hover:scale-125 transition-all',
           )}
           onClick={removeOverlay}

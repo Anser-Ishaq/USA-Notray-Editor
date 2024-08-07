@@ -3,6 +3,7 @@ import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import moment from 'moment';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -210,7 +211,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
       <div className="h-full bg-gray-50 overflow-x-auto">
         <div className="p-2 flex flex-nowrap md:flex-wrap">
           <div className="flex-shrink-0 mr-4 md:mr-0 md:w-full mb-4">
-            <h3 className="hidden md:block text-xl mb-3 whitespace-nowrap">
+            <h3 className="hidden text-base md:block text-xl mb-3 whitespace-nowrap">
               PDF Controls
             </h3>
             <div className="hidden md:flex items-center gap-2 mb-2">
@@ -255,7 +256,9 @@ const SidePanel: React.FC<SidePanelProps> = ({
 
           {data?.job_participant?.map((jp) => (
             <div key={jp.ID} className="flex-shrink-0 mr-4 md:mr-0 md:w-full">
-              <h3 className="text-xl mb-4 whitespace-nowrap">{jp.fullname}</h3>
+              <h3 className="text-xl text-base mb-4 whitespace-nowrap">
+                {jp.fullname}
+              </h3>
               <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-x-4 gap-y-0 md:gap-y-1">
                 <DraggableElement
                   jobDocId={selectedDocument?.ID}
@@ -308,9 +311,41 @@ const SidePanel: React.FC<SidePanelProps> = ({
             </div>
           ))}
 
+          <div className="flex-shrink-0 mr-4 md:mr-0 md:w-full">
+            <h3 className="mb-4 text-base md:mt-4 whitespace-nowrap">
+              Tagging
+            </h3>
+            <div className="flex md:block">
+              <DraggableElement
+                jobDocId={selectedDocument?.ID}
+                type={ItemType.TAG}
+              >
+                <Button
+                  type="default"
+                  className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                >
+                  Tag
+                </Button>
+              </DraggableElement>
+              <DraggableElement
+                jobDocId={selectedDocument?.ID}
+                type={ItemType.TAG_INPUT}
+              >
+                <Button
+                  type="default"
+                  className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                >
+                  Tag Text
+                </Button>
+              </DraggableElement>
+            </div>
+          </div>
+
           {notary && (
             <div className="flex-shrink-0 mr-4 md:mr-0 md:w-full">
-              <h3 className="mb-4 md:mt-4 whitespace-nowrap">Notary</h3>
+              <h3 className="mb-4 text-base md:mt-4 whitespace-nowrap">
+                Notary
+              </h3>
               <div className="flex md:block">
                 <DraggableElement
                   jobDocId={selectedDocument?.ID}
@@ -345,6 +380,18 @@ const SidePanel: React.FC<SidePanelProps> = ({
                     className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
                   >
                     Title
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
+                  type={ItemType.TEXT}
+                  overlayText={moment().format('YYYY-MM-DD')}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    Date
                   </Button>
                 </DraggableElement>
                 <DraggableElement

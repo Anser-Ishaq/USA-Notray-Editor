@@ -20,6 +20,8 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
         ItemType.IMAGE,
         ItemType.INPUT,
         ItemType.WHITE_BOX,
+        ItemType.TAG_INPUT,
+        ItemType.TAG,
       ],
       canDrop: (_item: OverlayItem, monitor) => {
         const offset = monitor.getClientOffset();
@@ -65,7 +67,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
             position: { x, y },
           });
         }
-        if (item?.type === 'input' && isItemNew) {
+        if (['input', 'tagInput']?.includes(item?.type) && isItemNew) {
           setTimeout(() => {
             const input = document.getElementById('input-' + id);
             if (input) {
