@@ -58,7 +58,7 @@ const OverlayContent = ({
       case ItemType.WHITE_BOX:
         return <div className="w-full h-full bg-white" />;
       case ItemType.INPUT:
-        return <InputElement overlay={overlay} />;
+        return <InputElement className="px-3 py-2" overlay={overlay} />;
       case ItemType.TAG_INPUT:
         return (
           <InputElement
@@ -118,8 +118,8 @@ const OverlayContent = ({
     <div
       className="resizable-overlay -translate-y-[50%] -translate-x-[50%] rounded z-10 cursor-move absolute p-0.5"
       style={{
-        top: overlay.position.y,
-        left: overlay.position.x,
+        left: `${overlay.position.x}%`,
+        top: `${overlay.position.y}%`,
         width: overlay.width,
         height: overlay.height,
       }}

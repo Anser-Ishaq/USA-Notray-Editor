@@ -35,6 +35,8 @@ const Dashboard: React.FC = () => {
   const { id } = useParams();
 
   const sessionId = +(id ?? 246);
+  const [totalPdfPages, setTotalPdfPages] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState<number | null>(null);
 
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
@@ -134,20 +136,37 @@ const Dashboard: React.FC = () => {
     }
   }, [participantDocs?.job_docs]);
 
+  const handleScroll = () => {
+    const container = editorContainerRef.current;
+    if (container && totalPdfPages) {
+      const scrollPosition = container.scrollTop;
+      const pageHeight = container.scrollHeight / totalPdfPages;
+      const currentPage = Math.floor(scrollPosition / pageHeight) + 1;
+      setCurrentPage(currentPage);
+    }
+  };
+
+  const onDocumentLoad = ({ numPages }: { numPages: number }) => {
+    setTotalPdfPages(numPages);
+  };
+
+  console.log('current', currentPage);
+
   return (
     <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
       <Spin spinning={isLoading || userSessionLoading || docsLoading}>
         <div
           ref={editorContainerRef}
+          onScroll={handleScroll}
           className="grid grid-cols-1 md:grid-cols-12 h-screen overflow-y-auto w-full"
         >
           <div className="flex md:hidden justify-between w-full z-20 fixed left-2 top-2 flex-row items-center">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <Button
                 shape="circle"
                 type="primary"
                 block
-                className="mb-2 flex-1"
+                className="flex-1"
                 icon={<PlusCircleFilled />}
                 onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
               />
@@ -155,10 +174,13 @@ const Dashboard: React.FC = () => {
                 shape="circle"
                 type="primary"
                 block
-                className="mb-2 flex-1"
+                className="flex-1"
                 icon={<SyncOutlined />}
                 onClick={onPageSync}
               />
+              <div className="block lg:hidden">
+                Page {currentPage} of {totalPdfPages || 0}
+              </div>
             </div>
             <Select
               loading={docsLoading}
@@ -221,11 +243,15 @@ const Dashboard: React.FC = () => {
           </div>
           <div
             id="pdf-viewer"
-            className="mb-28 h-full col-span-12 md:col-span-8"
+            className="relative mb-28 h-full col-span-12 md:col-span-8"
           >
+            <div className="hidden lg:block fixed left-[50%] -translate-x-[50%] z-50">
+              Page {currentPage} of {totalPdfPages || 0}
+            </div>
             <PDFViewer
               ref={pdfDocumentRef}
               addOverlay={addOverlay}
+              onLoad={onDocumentLoad}
               updateOverlays={updateOverlays}
               selectedDocument={selectedDocument}
               overlays={overlays}

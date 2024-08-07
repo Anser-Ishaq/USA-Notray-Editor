@@ -14,11 +14,12 @@ interface PDFViewerProps {
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
   selectedDocument?: Jobdoc;
   overlays: OverlayItem[];
+  onLoad?: (values: { numPages: number }) => void;
 }
 
 const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
   (
-    { pdfUrl, addOverlay, updateOverlays, selectedDocument, overlays },
+    { pdfUrl, addOverlay, updateOverlays, selectedDocument, overlays, onLoad },
     ref: React.ForwardedRef<any>,
   ) => {
     const [numPages, setNumPages] = useState<number | null>(null);
@@ -28,6 +29,7 @@ const PDFViewer = React.forwardRef<HTMLDivElement, PDFViewerProps>(
 
     const onDocumentLoadSuccess = useCallback(
       ({ numPages }: { numPages: number }) => {
+        onLoad && onLoad({ numPages });
         setNumPages(numPages);
       },
       [],

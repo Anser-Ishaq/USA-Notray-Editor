@@ -45,8 +45,10 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
 
         if (!dropperDimensions || !offset) return;
 
-        const x = offset.x - dropperDimensions.left;
-        const y = offset.y - dropperDimensions.top;
+        const xPercentage =
+          ((offset.x - dropperDimensions.left) / dropperDimensions.width) * 100;
+        const yPercentage =
+          ((offset.y - dropperDimensions.top) / dropperDimensions.height) * 100;
 
         const id = item?.id ?? uuid.v4();
         const isItemNew = !item?.id;
@@ -56,7 +58,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
             {
               ...item,
               pageNumber,
-              position: { x, y },
+              position: { x: xPercentage, y: yPercentage },
             },
           ]);
         } else {
@@ -64,7 +66,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
             ...item,
             id,
             pageNumber,
-            position: { x, y },
+            position: { x: xPercentage, y: yPercentage },
           });
         }
         if (['input', 'tagInput']?.includes(item?.type) && isItemNew) {
