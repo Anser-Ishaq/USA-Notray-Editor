@@ -5,6 +5,7 @@ export const ItemType = {
   TEXT: 'text',
   INPUT: 'input',
   IMAGE: 'image',
+  WHITE_BOX: 'whiteBox',
 } as const;
 
 export enum ISessionStatus {

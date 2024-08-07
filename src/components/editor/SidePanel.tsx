@@ -373,6 +373,17 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 </DraggableElement>
                 <DraggableElement
                   jobDocId={selectedDocument?.ID}
+                  type={ItemType.WHITE_BOX}
+                >
+                  <Button
+                    type="default"
+                    className="mr-2 md:mr-0 md:w-full md:justify-start mb-2 whitespace-nowrap"
+                  >
+                    White Box
+                  </Button>
+                </DraggableElement>
+                <DraggableElement
+                  jobDocId={selectedDocument?.ID}
                   type={ItemType.IMAGE}
                   imgSrc={notary?.seal}
                 >

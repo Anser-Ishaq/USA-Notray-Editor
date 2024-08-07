@@ -15,7 +15,12 @@ interface DroppableAreaProps {
 const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
   ({ children, addOverlay, updateOverlays, overlays, pageNumber }) => {
     const [, drop] = useDrop({
-      accept: [ItemType.TEXT, ItemType.IMAGE, ItemType.INPUT],
+      accept: [
+        ItemType.TEXT,
+        ItemType.IMAGE,
+        ItemType.INPUT,
+        ItemType.WHITE_BOX,
+      ],
       canDrop: (_item: OverlayItem, monitor) => {
         const offset = monitor.getClientOffset();
         const dropperDimensions = document
@@ -41,6 +46,8 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
         const x = offset.x - dropperDimensions.left;
         const y = offset.y - dropperDimensions.top;
 
+        const id = item?.id ?? uuid.v4();
+        const isItemNew = !item?.id;
         if (overlays?.find((ov) => ov?.id === item.id)) {
           updateOverlays((prevOverlays) => [
             ...prevOverlays.filter((ov) => ov?.id !== item.id),
@@ -53,10 +60,18 @@ const DroppableArea: React.FC<DroppableAreaProps> = React.memo(
         } else {
           addOverlay({
             ...item,
-            id: item?.id ?? uuid.v4(),
+            id,
             pageNumber,
             position: { x, y },
           });
+        }
+        if (item?.type === 'input' && isItemNew) {
+          setTimeout(() => {
+            const input = document.getElementById('input-' + id);
+            if (input) {
+              input.focus();
+            }
+          }, 0);
         }
       },
     });

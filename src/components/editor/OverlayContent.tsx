@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { cloneElement, useMemo } from 'react';
 import { useDrag } from 'react-dnd';
 import { MdCancel } from 'react-icons/md';
@@ -6,6 +7,33 @@ import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 
 import { ItemType, OverlayItem } from '@/types/app';
+
+function autoGrow(inputId: string) {
+  const inputMirrorDiv = document.getElementById('inputMirror-' + inputId)!;
+  const input: any = document.getElementById('input-' + inputId)!;
+  inputMirrorDiv.textContent = input.value || input.placeholder;
+  input.style.width = inputMirrorDiv.offsetWidth + 'px';
+}
+
+const InputElement = ({ overlay }: { overlay: OverlayItem }) => {
+  return (
+    <div
+      className="overlayed-input-container"
+      id={'inputContainer-' + overlay?.id}
+    >
+      <input
+        type="text"
+        className="font-body ring-none border-none"
+        id={'input-' + overlay?.id}
+        onInput={() => overlay?.id && autoGrow(overlay.id)}
+      />
+      <div
+        className="overlayed-input-mirror"
+        id={'inputMirror-' + overlay?.id}
+      ></div>
+    </div>
+  );
+};
 
 const OverlayContent = ({
   overlay,
@@ -16,13 +44,10 @@ const OverlayContent = ({
 }) => {
   const content = useMemo(() => {
     switch (overlay.type) {
+      case ItemType.WHITE_BOX:
+        return <div className="w-full h-full bg-white" />;
       case ItemType.INPUT:
-        return (
-          <input
-            id={overlay.id}
-            className="py-2 w-full border-none outline-gray-100 border-gray-50"
-          />
-        );
+        return <InputElement overlay={overlay} />;
       case ItemType.TEXT:
         return (
           <p
@@ -63,8 +88,7 @@ const OverlayContent = ({
   if (!content) return;
   return (
     <div
-      id={overlay.id}
-      className="resizable-overlay -translate-y-[50%] -translate-x-[50%] border border-gray-300 rounded z-10 bg-gray-300/25 cursor-move absolute p-1"
+      className="resizable-overlay -translate-y-[50%] -translate-x-[50%] rounded z-10 cursor-move absolute p-0.5"
       style={{
         top: overlay.position.y,
         left: overlay.position.x,
@@ -73,8 +97,9 @@ const OverlayContent = ({
       }}
     >
       <ResizableBox
-        width={overlay.width || 100}
-        height={overlay.height || 100}
+        style={{ width: overlay?.type === 'input' ? 'max-content' : undefined }}
+        width={overlay.width}
+        height={overlay.height}
         onResizeStop={(_, data) => {
           overlay.width = data.size.width;
           overlay.height = data.size.height;
@@ -92,12 +117,15 @@ const OverlayContent = ({
         {cloneElement(content, {
           ref: drag,
           style: {
-            width: overlay.width,
-            height: overlay.height,
+            width: '100%',
+            height: '100%',
           },
         })}
         <div
-          className="cancel-icon hidden text-red-500 absolute top-0 right-0 cursor-pointer hover:text-red-700 hover:scale-125 transition-all"
+          className={classNames(
+            overlay?.type === 'input' ? 'left-0 top-0' : 'top-0 right-0',
+            'cancel-icon hidden text-red-500 absolute cursor-pointer hover:text-red-700 hover:scale-125 transition-all',
+          )}
           onClick={removeOverlay}
         >
           <MdCancel />

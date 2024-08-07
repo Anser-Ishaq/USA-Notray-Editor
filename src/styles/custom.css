@@ -1,3 +1,17 @@
 .resizable-overlay:hover .cancel-icon {
   display: block !important;
 }
+
+.react-resizable-handle {
+  visibility: none;
+}
+
+.overlayed-input-container {
+  display: inline-block;
+}
+
+.overlayed-input-mirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+}
