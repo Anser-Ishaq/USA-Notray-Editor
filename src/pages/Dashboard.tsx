@@ -37,11 +37,11 @@ const Dashboard: React.FC = () => {
   const { id } = useParams();
 
   const sessionId = +(id ?? 246);
-  const [flowCompleted, setFlowCompleted] = useState(false);
+  const [flowCompleted, setFlowCompleted] = useState(import.meta.env.DEV);
   const [totalPdfPages, setTotalPdfPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState<number | null>(null);
   const [error, setError] = useState('');
-  const [flowLoading, setFlowLoading] = useState(true);
+  const [flowLoading, setFlowLoading] = useState(import.meta.env.PROD);
 
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
@@ -154,6 +154,8 @@ const Dashboard: React.FC = () => {
   const onDocumentLoad = ({ numPages }: { numPages: number }) => {
     setTotalPdfPages(numPages);
   };
+
+  console.log('OVERLAYS', overlays);
 
   return (
     <>

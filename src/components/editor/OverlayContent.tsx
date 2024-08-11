@@ -19,10 +19,12 @@ const InputElement = ({
   overlay,
   className,
   inputClassName,
+  handleChange,
 }: {
   overlay: OverlayItem;
   className?: string;
   inputClassName?: string;
+  handleChange: (value: string) => void;
 }) => {
   return (
     <div
@@ -35,8 +37,12 @@ const InputElement = ({
           'font-body ring-none border-none',
           inputClassName,
         )}
+        defaultValue={overlay?.value}
+        onChange={(e) => {
+          handleChange(e.target.value);
+          overlay?.id && autoGrow(overlay.id);
+        }}
         id={'input-' + overlay?.id}
-        onInput={() => overlay?.id && autoGrow(overlay.id)}
       />
       <div
         className="overlayed-input-mirror"
@@ -53,18 +59,31 @@ const OverlayContent = ({
   overlay: OverlayItem;
   updateOverlays: React.Dispatch<React.SetStateAction<OverlayItem[]>>;
 }) => {
+  const handleChange = (value: string) => {
+    updateOverlays((prevOverlays) =>
+      prevOverlays.map((ov) => (ov.id === overlay.id ? { ...ov, value } : ov)),
+    );
+  };
+
   const content = useMemo(() => {
     switch (overlay.type) {
       case ItemType.WHITE_BOX:
         return <div className="w-full h-full bg-white" />;
       case ItemType.INPUT:
-        return <InputElement className="px-3 py-2" overlay={overlay} />;
+        return (
+          <InputElement
+            className="px-3 py-2"
+            overlay={overlay}
+            handleChange={handleChange}
+          />
+        );
       case ItemType.TAG_INPUT:
         return (
           <InputElement
             overlay={overlay}
             className="text-red-500 px-3 py-2 border-solid border-red-500"
             inputClassName="text-red-500"
+            handleChange={handleChange}
           />
         );
       case ItemType.TAG:
