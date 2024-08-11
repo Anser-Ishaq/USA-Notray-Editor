@@ -36,8 +36,11 @@ const Dashboard: React.FC = () => {
   const { id } = useParams();
 
   const sessionId = +(id ?? 246);
+  const [flowCompleted, setFlowCompleted] = useState(false);
   const [totalPdfPages, setTotalPdfPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [flowLoading, setFlowLoading] = useState(true);
 
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
@@ -152,64 +155,57 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <>
-      <PersonaReact
-        templateId="tmpl_bY18rJArzhJzCbTDH5MWoaLZ>"
-        environmentId="env_6yoiGX97iP1dU7135cx9e5Uo"
-        onLoad={() => {
-          console.log('Loaded inline');
-        }}
-        onComplete={({ inquiryId, status: _, fields: _fields }) => {
-          // Inquiry completed. Optionally tell your server about it.
-          console.log(`Sending finished inquiry ${inquiryId} to backend`);
-        }}
-      />
-      <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
-        <Spin spinning={isLoading || userSessionLoading || docsLoading}>
-          <div
-            ref={editorContainerRef}
-            onScroll={handleScroll}
-            className="grid grid-cols-1 md:grid-cols-12 h-screen overflow-y-auto w-full"
-          >
-            <div className="flex md:hidden justify-between w-full z-20 fixed left-2 top-2 flex-row items-center">
-              <div className="flex items-center gap-2">
-                <Button
-                  shape="circle"
-                  type="primary"
-                  block
-                  className="flex-1"
-                  icon={<PlusCircleFilled />}
-                  onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
-                />
-                <Button
-                  shape="circle"
-                  type="primary"
-                  block
-                  className="flex-1"
-                  icon={<SyncOutlined />}
-                  onClick={onPageSync}
-                />
-                <div className="block lg:hidden">
-                  Page {currentPage} of {totalPdfPages || 0}
+    <Spin spinning={flowLoading}>
+      {!flowCompleted ? (
+        <div className="w-full h-screen persona-iframe">
+          <PersonaReact
+            templateId="tmpl_bY18rJArzhJzCbTDH5MWoaLZ"
+            environmentId="env_6yoiGX97iP1dU7135cx9e5Uo"
+            onLoad={() => {
+              setFlowLoading(false);
+            }}
+            onError={(e) => {
+              setError(
+                e?.message ?? 'Something went wrong while loading inquiry flow',
+              );
+            }}
+            onComplete={({ inquiryId, status: _, fields: _fields }) => {
+              setFlowCompleted(true);
+              console.log(`Sending finished inquiry ${inquiryId} to backend`);
+            }}
+          />
+        </div>
+      ) : null}
+      {flowCompleted ? (
+        <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
+          <Spin spinning={isLoading || userSessionLoading || docsLoading}>
+            <div
+              ref={editorContainerRef}
+              onScroll={handleScroll}
+              className="grid grid-cols-1 md:grid-cols-12 h-screen overflow-y-auto w-full"
+            >
+              <div className="flex md:hidden justify-between w-full z-20 fixed left-2 top-2 flex-row items-center">
+                <div className="flex items-center gap-2">
+                  <Button
+                    shape="circle"
+                    type="primary"
+                    block
+                    className="flex-1"
+                    icon={<PlusCircleFilled />}
+                    onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
+                  />
+                  <Button
+                    shape="circle"
+                    type="primary"
+                    block
+                    className="flex-1"
+                    icon={<SyncOutlined />}
+                    onClick={onPageSync}
+                  />
+                  <div className="block lg:hidden">
+                    Page {currentPage} of {totalPdfPages || 0}
+                  </div>
                 </div>
-              </div>
-              <Select
-                loading={docsLoading}
-                options={docsOptions}
-                value={selectedDocument?.ID}
-                allowClear
-                onChange={(value: number) => {
-                  setSelectedDocument(
-                    participantDocs?.job_docs?.find((jd) => jd.ID === value),
-                  );
-                }}
-                className="mr-6"
-                placeholder="Select Document"
-              />
-            </div>
-            <div className="hidden md:block md:col-span-2" />
-            <div className="hidden md:block bg-gray-50 h-full overflow-y-auto md:fixed md:left-0 md:w-1/5 w-full md:col-span-2">
-              <div className="p-2">
                 <Select
                   loading={docsLoading}
                   options={docsOptions}
@@ -220,71 +216,91 @@ const Dashboard: React.FC = () => {
                       participantDocs?.job_docs?.find((jd) => jd.ID === value),
                     );
                   }}
-                  className="w-full mb-4"
+                  className="mr-6"
                   placeholder="Select Document"
                 />
-                <Button
-                  color="error"
-                  type="primary"
-                  block
-                  className="mb-2 flex-1"
-                  onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
-                >
-                  Add Page
-                </Button>
-                <Button
-                  color="error"
-                  type="primary"
-                  block
-                  className="mb-2 flex-1"
-                  onClick={onPageSync}
-                >
-                  Sync Pages
-                </Button>
               </div>
-              <div className="mx-2">
-                {import.meta.env.PROD ? (
-                  <iframe
-                    src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
-                    allow="camera; microphone; fullscreen; speaker; display-capture"
-                    className="border-none w-full h-[calc(100vh-150px)] rounded "
+              <div className="hidden md:block md:col-span-2" />
+              <div className="hidden md:block bg-gray-50 h-full overflow-y-auto md:fixed md:left-0 md:w-1/5 w-full md:col-span-2">
+                <div className="p-2">
+                  <Select
+                    loading={docsLoading}
+                    options={docsOptions}
+                    value={selectedDocument?.ID}
+                    allowClear
+                    onChange={(value: number) => {
+                      setSelectedDocument(
+                        participantDocs?.job_docs?.find(
+                          (jd) => jd.ID === value,
+                        ),
+                      );
+                    }}
+                    className="w-full mb-4"
+                    placeholder="Select Document"
                   />
-                ) : null}
+                  <Button
+                    color="error"
+                    type="primary"
+                    block
+                    className="mb-2 flex-1"
+                    onClick={(pdfDocumentRef as any)?.current?.addBlankPage}
+                  >
+                    Add Page
+                  </Button>
+                  <Button
+                    color="error"
+                    type="primary"
+                    block
+                    className="mb-2 flex-1"
+                    onClick={onPageSync}
+                  >
+                    Sync Pages
+                  </Button>
+                </div>
+                <div className="mx-2">
+                  {import.meta.env.PROD ? (
+                    <iframe
+                      src={sessionData?.jobSchedule?.[0]?.whereby_host_link}
+                      allow="camera; microphone; fullscreen; speaker; display-capture"
+                      className="border-none w-full h-[calc(100vh-150px)] rounded "
+                    />
+                  ) : null}
+                </div>
               </div>
-            </div>
-            <div
-              id="pdf-viewer"
-              className="relative mb-28 h-full col-span-12 md:col-span-8"
-            >
-              <div className="hidden lg:block fixed left-[50%] -translate-x-[50%] z-50">
-                Page {currentPage} of {totalPdfPages || 0}
+              <div
+                id="pdf-viewer"
+                className="relative mb-28 h-full col-span-12 md:col-span-8"
+              >
+                <div className="hidden lg:block fixed left-[50%] -translate-x-[50%] z-50">
+                  Page {currentPage} of {totalPdfPages || 0}
+                </div>
+                <PDFViewer
+                  ref={pdfDocumentRef}
+                  addOverlay={addOverlay}
+                  onLoad={onDocumentLoad}
+                  updateOverlays={updateOverlays}
+                  selectedDocument={selectedDocument}
+                  overlays={overlays}
+                  pdfUrl={selectedDocument?.file_path}
+                />
               </div>
-              <PDFViewer
-                ref={pdfDocumentRef}
-                addOverlay={addOverlay}
-                onLoad={onDocumentLoad}
-                updateOverlays={updateOverlays}
-                selectedDocument={selectedDocument}
+              <div className="hidden md:block md:col-span-2" />
+              <SidePanel
+                zoomIn={zoomIn}
+                zoomOut={zoomOut}
+                data={sessionData}
+                userSession={userSession}
+                documentsData={participantDocs}
+                notary={notary}
                 overlays={overlays}
-                pdfUrl={selectedDocument?.file_path}
+                selectedDocument={selectedDocument}
+                sessionId={sessionId}
               />
             </div>
-            <div className="hidden md:block md:col-span-2" />
-            <SidePanel
-              zoomIn={zoomIn}
-              zoomOut={zoomOut}
-              data={sessionData}
-              userSession={userSession}
-              documentsData={participantDocs}
-              notary={notary}
-              overlays={overlays}
-              selectedDocument={selectedDocument}
-              sessionId={sessionId}
-            />
-          </div>
-        </Spin>
-      </DndProvider>
-    </>
+          </Spin>
+        </DndProvider>
+      ) : null}
+    </Spin>
   );
 };
 

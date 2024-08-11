@@ -15,3 +15,11 @@
   visibility: hidden;
   white-space: pre;
 }
+
+.persona-iframe {
+  @apply flex justify-center items-center;
+}
+
+.persona-iframe > iframe {
+  @apply w-full h-screen md:w-[400px] md:h-[650px];
+}
