@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
         onLoad={() => {
           console.log('Loaded inline');
         }}
-        onComplete={({ inquiryId, status, fields }) => {
+        onComplete={({ inquiryId, status: _, fields: _fields }) => {
           // Inquiry completed. Optionally tell your server about it.
           console.log(`Sending finished inquiry ${inquiryId} to backend`);
         }}
