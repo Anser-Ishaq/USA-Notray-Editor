@@ -1,5 +1,6 @@
 import { PlusCircleFilled, SyncOutlined } from '@ant-design/icons';
 import { Button, Select, Spin, Typography } from 'antd';
+import classNames from 'classnames';
 import PersonaReact from 'persona-react';
 import React, {
   useCallback,
@@ -155,7 +156,16 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Spin spinning={flowLoading}>
+    <>
+      <div
+        className={classNames(
+          !flowLoading ? 'hidden' : '',
+          'fixed inset-0 flex justify-center items-center',
+        )}
+      >
+        <Spin spinning={flowLoading} className={classNames()} />
+      </div>
+
       {!flowCompleted ? (
         <div className="w-full h-screen persona-iframe">
           <PersonaReact
@@ -177,8 +187,8 @@ const Dashboard: React.FC = () => {
         </div>
       ) : null}
       {error ? (
-        <div className="fixed inset-0 flex justify-center items-center">
-          <Typography.Title>{error}</Typography.Title>
+        <div className="fixed bg-white text-red-500 inset-0 flex justify-center items-center">
+          <Typography.Title level={4}>{error}</Typography.Title>
         </div>
       ) : null}
       {flowCompleted ? (
@@ -305,7 +315,7 @@ const Dashboard: React.FC = () => {
           </Spin>
         </DndProvider>
       ) : null}
-    </Spin>
+    </>
   );
 };
 
