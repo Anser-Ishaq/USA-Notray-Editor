@@ -1,5 +1,5 @@
 import { PlusCircleFilled, SyncOutlined } from '@ant-design/icons';
-import { Button, Select, Spin } from 'antd';
+import { Button, Select, Spin, Typography } from 'antd';
 import PersonaReact from 'persona-react';
 import React, {
   useCallback,
@@ -174,6 +174,11 @@ const Dashboard: React.FC = () => {
               console.log(`Sending finished inquiry ${inquiryId} to backend`);
             }}
           />
+        </div>
+      ) : null}
+      {error ? (
+        <div className="fixed inset-0 flex justify-center items-center">
+          <Typography.Title>{error}</Typography.Title>
         </div>
       ) : null}
       {flowCompleted ? (
