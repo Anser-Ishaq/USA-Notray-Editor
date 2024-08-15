@@ -37,11 +37,13 @@ const Dashboard: React.FC = () => {
   const { id } = useParams();
 
   const sessionId = +(id ?? 246);
-  const [flowCompleted, setFlowCompleted] = useState(import.meta.env.DEV);
+  // const [flowCompleted, setFlowCompleted] = useState(import.meta.env.DEV);
+  const [flowCompleted, setFlowCompleted] = useState(true);
   const [totalPdfPages, setTotalPdfPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState<number | null>(null);
   const [error, setError] = useState('');
-  const [flowLoading, setFlowLoading] = useState(import.meta.env.PROD);
+  // const [flowLoading, setFlowLoading] = useState(import.meta.env.PROD);
+  const [flowLoading, setFlowLoading] = useState(false);
 
   const [selectedDocument, setSelectedDocument] = useState<Jobdoc>();
   const [overlays, setOverlays] = useState<OverlayItem[]>([]);
